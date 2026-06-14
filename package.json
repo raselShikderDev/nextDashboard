@@ -1,5 +1,5 @@
 {
-  "name": "nextstep-admin-dashboard",
+  "name": "nextstepDashboard",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -28,6 +28,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.3.1",
+    "dotenv": "^17.4.2",
     "framer-motion": "^11.0.6",
     "lucide-react": "^0.344.0",
     "react": "^18.2.0",
