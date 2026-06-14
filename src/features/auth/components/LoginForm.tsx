@@ -31,8 +31,8 @@ export function LoginForm() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "admin@example.com",
-      password: "password123",
+      email: "",
+      password: "",
     },
   });
 
@@ -122,10 +122,10 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <div className="mt-6 p-3 bg-muted rounded-lg">
+      {/* <div className="mt-6 p-3 rounded-lg">
         <p className="text-xs text-muted-foreground text-center font-medium">Demo Credentials</p>
         <p className="text-xs text-muted-foreground text-center mt-1">admin@example.com / password123</p>
-      </div>
+      </div> */}
     </motion.div>
   );
 }
