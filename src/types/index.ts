@@ -3,17 +3,24 @@ export type RequestStatus = "pending" | "approved" | "rejected" | "in_progress" 
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 export type ServiceStatus = "active" | "inactive" | "deprecated";
 
-export interface User {
+export interface UserDetails {
   id: string;
   name: string;
+  phone: string;
+  avatarUrl: string | null;
+  address: string;
+  userId: string;
+}
+
+export interface User {
+  id: string;
   email: string;
   role: UserRole;
-  avatar?: string;
-  phone?: string;
-  department?: string;
+  isActive: boolean;
+  isVerified: boolean;
   createdAt: string;
   updatedAt: string;
-  isActive: boolean;
+  userDetails: UserDetails;
 }
 
 export interface AuthUser extends User {

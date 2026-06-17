@@ -27,14 +27,7 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
 
-    getMe: builder.query<User, void>({
-      query: () => ({
-        url: "/auth/me",
-        method: "GET",
-      }),
-      transformResponse: (response: ApiResponse<User>) => response.data,
-      providesTags: ["User"],
-    }),
+   
 
     refreshToken: builder.mutation<{ accessToken: string }, void>({
       query: () => ({
@@ -64,7 +57,6 @@ export const authApi = baseApi.injectEndpoints({
 export const {
   useLoginMutation,
   useLogoutMutation,
-  useGetMeQuery,
   useRefreshTokenMutation,
   useChangePasswordMutation,
 } = authApi;

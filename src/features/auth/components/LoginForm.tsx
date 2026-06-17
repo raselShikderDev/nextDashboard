@@ -22,10 +22,6 @@ export function LoginForm() {
   const { toast } = useToast();
   const [login, { isLoading }] = useLoginMutation();
 
-  const from =
-    (location.state as { from?: { pathname: string } })?.from?.pathname ??
-    "/login";
-  console.log({ from });
 
   const {
     register,
@@ -48,6 +44,7 @@ const onSubmit = async (data: LoginFormData) => {
     toast({
       title: "Welcome back!",
       description: `Logged in as ${result.user.role}`,
+      variant:"default"
     });
 
     navigate("/", { replace: true });
