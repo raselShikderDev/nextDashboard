@@ -1,18 +1,11 @@
-export interface IUser {
-  id: string;
-  email: string;
-  role: string;
-  isActive: boolean;
-  isVerified: boolean;
-  mustChangePassword: boolean;
-}
+import { User } from ".";
 
-export interface IUserAuth {
+
+
+
+export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-  user: IUser;
-}
-
-export interface ILoginResponse {
-  user: IUserAuth;
+  mustChangePassword: boolean;
+  user: User;
 }

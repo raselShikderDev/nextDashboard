@@ -13,7 +13,6 @@ import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
 import { useToast } from "../../../hooks/useToast";
 import { cn } from "../../../lib/utils";
-import { ILoginResponse } from "@/types/auth.types";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -40,41 +39,30 @@ export function LoginForm() {
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    console.log({ data });
+const onSubmit = async (data: LoginFormData) => {
+  try {
+    const result = await login(data).unwrap();
 
-    try {
-      const user = await login(data).unwrap();
-      // const user  = res?.user;
-      console.log({ user });
-      // if (user.user.email && user.isActive) {
-      // dispatch(setCredentials(user));
-      // }
-      toast({
-        title: "Welcome back!",
-        description: `Logged in as ${user.role}`,
-      });
-      // navigate(from, { replace: true });
-    } catch (err) {
-      // // Demo mode: create a mock user when API is unavailable
-      // const mockUser = {
-      //   id: "user-admin",
-      //   name: "Admin User",
-      //   email: data.email,
-      //   role: "admin" as const,
-      //   token: "mock-token-" + Date.now(),
-      //   createdAt: new Date().toISOString(),
-      //   updatedAt: new Date().toISOString(),
-      //   isActive: true,
-      // };
-      // dispatch(setCredentials(mockUser));
-      // toast({ title: "Welcome back!", description: "Logged in (demo mode)" });
-      // navigate(from, { replace: true });
-      console.log(err);
-      console.error(err);
-    }
-  };
+    dispatch(setCredentials(result.user));
 
+    toast({
+      title: "Welcome back!",
+      description: `Logged in as ${result.user.role}`,
+    });
+
+    navigate("/", { replace: true });
+  } catch (error: any) {
+    toast({
+      title: "Login failed",
+      description:
+        error?.data?.message ||
+        "Invalid email or password",
+      variant: "destructive",
+    });
+
+    console.error(error);
+  }
+};
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

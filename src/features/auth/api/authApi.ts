@@ -1,15 +1,7 @@
+import { LoginResponse } from "@/types/auth.types";
 import { baseApi } from "../../../app/baseApi";
-import type {
-  LoginCredentials,
-  User,
-} from "../../../types";
+import type { LoginCredentials, User } from "../../../types";
 
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  mustChangePassword: boolean;
-  user: User;
-}
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -25,9 +17,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: credentials,
       }),
-      transformResponse: (
-        response: ApiResponse<LoginResponse>
-      ) => response.data,
+      transformResponse: (response: { data: LoginResponse }) => response.data,
     }),
 
     logout: builder.mutation<void, void>({
@@ -42,23 +32,17 @@ export const authApi = baseApi.injectEndpoints({
         url: "/auth/me",
         method: "GET",
       }),
-      transformResponse: (
-        response: ApiResponse<User>
-      ) => response.data,
+      transformResponse: (response: ApiResponse<User>) => response.data,
       providesTags: ["User"],
     }),
 
-    refreshToken: builder.mutation<
-      { accessToken: string },
-      void
-    >({
+    refreshToken: builder.mutation<{ accessToken: string }, void>({
       query: () => ({
         url: "/auth/refresh-token",
         method: "POST",
       }),
-      transformResponse: (
-        response: ApiResponse<{ accessToken: string }>
-      ) => response.data,
+      transformResponse: (response: ApiResponse<{ accessToken: string }>) =>
+        response.data,
     }),
 
     changePassword: builder.mutation<
