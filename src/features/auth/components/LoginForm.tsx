@@ -13,6 +13,7 @@ import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
 import { useToast } from "../../../hooks/useToast";
 import { cn } from "../../../lib/utils";
+import { ILoginResponse } from "@/types/auth.types";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -22,7 +23,10 @@ export function LoginForm() {
   const { toast } = useToast();
   const [login, { isLoading }] = useLoginMutation();
 
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/dashboard";
+  const from =
+    (location.state as { from?: { pathname: string } })?.from?.pathname ??
+    "/login";
+  console.log({ from });
 
   const {
     register,
@@ -37,26 +41,37 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
+    console.log({ data });
+
     try {
       const user = await login(data).unwrap();
-      dispatch(setCredentials(user));
-      toast({ title: "Welcome back!", description: `Logged in as ${user.name}` });
-      navigate(from, { replace: true });
-    } catch {
-      // Demo mode: create a mock user when API is unavailable
-      const mockUser = {
-        id: "user-admin",
-        name: "Admin User",
-        email: data.email,
-        role: "admin" as const,
-        token: "mock-token-" + Date.now(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isActive: true,
-      };
-      dispatch(setCredentials(mockUser));
-      toast({ title: "Welcome back!", description: "Logged in (demo mode)" });
-      navigate(from, { replace: true });
+      // const user  = res?.user;
+      console.log({ user });
+      // if (user.user.email && user.isActive) {
+      // dispatch(setCredentials(user));
+      // }
+      toast({
+        title: "Welcome back!",
+        description: `Logged in as ${user.role}`,
+      });
+      // navigate(from, { replace: true });
+    } catch (err) {
+      // // Demo mode: create a mock user when API is unavailable
+      // const mockUser = {
+      //   id: "user-admin",
+      //   name: "Admin User",
+      //   email: data.email,
+      //   role: "admin" as const,
+      //   token: "mock-token-" + Date.now(),
+      //   createdAt: new Date().toISOString(),
+      //   updatedAt: new Date().toISOString(),
+      //   isActive: true,
+      // };
+      // dispatch(setCredentials(mockUser));
+      // toast({ title: "Welcome back!", description: "Logged in (demo mode)" });
+      // navigate(from, { replace: true });
+      console.log(err);
+      console.error(err);
     }
   };
 
@@ -72,7 +87,9 @@ export function LoginForm() {
           <Shield className="w-8 h-8 text-primary-foreground" />
         </div>
         <h1 className="text-2xl font-bold tracking-tight">Admin Portal</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Sign in to your account</p>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Sign in to your account
+        </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -88,7 +105,9 @@ export function LoginForm() {
               {...register("email")}
             />
           </div>
-          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+          {errors.email && (
+            <p className="text-xs text-destructive">{errors.email.message}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -99,7 +118,10 @@ export function LoginForm() {
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
-              className={cn("pl-10 pr-10", errors.password && "border-destructive")}
+              className={cn(
+                "pl-10 pr-10",
+                errors.password && "border-destructive",
+              )}
               {...register("password")}
             />
             <button
@@ -107,15 +129,26 @@ export function LoginForm() {
               onClick={() => setShowPassword((v) => !v)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
             </button>
           </div>
-          {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
+          {errors.password && (
+            <p className="text-xs text-destructive">
+              {errors.password.message}
+            </p>
+          )}
         </div>
 
         <Button type="submit" className="w-full" disabled={isLoading} size="lg">
           {isLoading ? (
-            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Signing in...</>
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Signing in...
+            </>
           ) : (
             "Sign In"
           )}

@@ -25,6 +25,7 @@ export function Header({ onMenuClick }: HeaderProps) {
     if (isDark) document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
   }, [isDark]);
+console.log(user);
 
   return (
     <header className="h-16 border-b border-border bg-card flex items-center px-4 gap-4 shrink-0">

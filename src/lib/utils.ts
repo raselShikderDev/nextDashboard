@@ -14,7 +14,10 @@ export function formatCurrency(amount: number, currency = "USD"): string {
   }).format(amount);
 }
 
-export function formatDate(dateString: string, pattern = "MMM dd, yyyy"): string {
+export function formatDate(
+  dateString: string,
+  pattern = "MMM dd, yyyy",
+): string {
   try {
     return format(parseISO(dateString), pattern);
   } catch {
@@ -37,12 +40,10 @@ export function formatNumber(num: number): string {
 }
 
 export function getInitials(name: string): string {
+  // const data = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+console.log({name});
+
   return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 }
 
 export function slugify(text: string): string {
@@ -68,7 +69,7 @@ export function generateId(): string {
 
 export function debounce<T extends (...args: unknown[]) => unknown>(
   fn: T,
-  delay: number
+  delay: number,
 ): (...args: Parameters<T>) => void {
   let timer: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
@@ -81,14 +82,23 @@ export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
-  return keys.reduce((acc, key) => {
-    acc[key] = obj[key];
-    return acc;
-  }, {} as Pick<T, K>);
+export function pick<T extends object, K extends keyof T>(
+  obj: T,
+  keys: K[],
+): Pick<T, K> {
+  return keys.reduce(
+    (acc, key) => {
+      acc[key] = obj[key];
+      return acc;
+    },
+    {} as Pick<T, K>,
+  );
 }
 
-export function omit<T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
+export function omit<T extends object, K extends keyof T>(
+  obj: T,
+  keys: K[],
+): Omit<T, K> {
   const result = { ...obj };
   keys.forEach((key) => delete result[key]);
   return result as Omit<T, K>;
