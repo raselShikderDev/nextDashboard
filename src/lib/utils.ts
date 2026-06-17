@@ -40,10 +40,8 @@ export function formatNumber(num: number): string {
 }
 
 export function getInitials(name: string): string {
-  // const data = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-console.log({name});
-
-  return name
+  const data = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  return data
 }
 
 export function slugify(text: string): string {

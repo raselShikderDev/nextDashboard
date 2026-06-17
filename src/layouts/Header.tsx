@@ -7,6 +7,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { getInitials } from "../lib/utils";
 import { useNavigate } from "react-router-dom";
 import {
+  Settings,
+  LogOut,
+  UserCircle,
+  ChevronDown,
+  Shield,
+} from "lucide-react";
+
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -45,108 +53,169 @@ export function Header({ onMenuClick }: HeaderProps) {
   console.log("Current User:", user);
 
   return (
-    <header className="h-16 border-b border-border bg-card flex items-center px-4 gap-4 shrink-0">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="lg:hidden"
-        onClick={onMenuClick}
-      >
-        <Menu className="w-5 h-5" />
-      </Button>
+    <header className="sticky top-0 z-40 h-16 border-b bg-background/80 backdrop-blur-xl">
+      <div className="flex h-full items-center justify-between px-6">
+        {/* Left */}
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={onMenuClick}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
 
-      <div className="flex-1 max-w-md hidden sm:block">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search anything..."
-            className="pl-9 bg-muted/50 border-transparent focus:border-input h-9"
-          />
+          <div className="hidden md:block">
+            <h1 className="text-lg font-semibold tracking-tight">Dashboard</h1>
+            <p className="text-xs text-muted-foreground">
+              Welcome back, {user?.userDetails?.name || "User"}
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div className="flex-1 sm:flex-none" />
+        {/* Search */}
+        {/* <div className="hidden md:flex flex-1 max-w-xl mx-8">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
-      <div className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9"
-          onClick={() => setIsDark((d) => !d)}
-        >
-          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-        </Button>
+            <Input
+              placeholder="Search requests, users, services..."
+              className="pl-10 h-10 rounded-xl bg-muted/40 border-muted"
+            />
+          </div>
+        </div> */}
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 relative"
-          onClick={() => dispatch(togglePanel())}
-        >
-          <Bell className="w-4 h-4" />
+        {/* Right */}
+        <div className="flex items-center gap-2">
+          {/* Theme */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-10 w-10 rounded-full"
+            onClick={() => setIsDark((d) => !d)}
+          >
+            {isDark ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </Button>
 
-          {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 w-4 h-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </span>
-          )}
-        </Button>
+          {/* Notifications */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-10 w-10 rounded-full relative"
+            onClick={() => dispatch(togglePanel())}
+          >
+            <Bell className="h-4 w-4" />
 
-        {!isLoading && user && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-9 gap-2 px-2">
-                <Avatar className="w-7 h-7">
-                  <AvatarImage
-                    src={user?.userDetails?.avatarUrl || ""}
-                    alt={user?.userDetails?.name || user.email}
-                  />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </Button>
 
-                  <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                    {getInitials(user.userDetails?.name || user.email)}
-                  </AvatarFallback>
-                </Avatar>
+          {/* User */}
+          {!isLoading && user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="h-11 px-2 rounded-xl border hover:bg-muted/60"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={user.userDetails?.avatarUrl || ""}
+                      alt={user.userDetails?.name || user.email}
+                    />
 
-                <span className="text-sm font-medium hidden sm:block">
-                  {user.userDetails?.name || user.email}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
+                    <AvatarFallback>
+                      {getInitials(user.userDetails?.name || user.email)}
+                    </AvatarFallback>
+                  </Avatar>
 
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                <div>
-                  <p className="font-medium">
-                    {user.userDetails?.name || "User"}
-                  </p>
+                  <div className="hidden md:flex flex-col items-start ml-2">
+                    <span className="text-sm font-medium leading-none">
+                      {user.userDetails?.name || "User"}
+                    </span>
 
-                  <p className="text-xs text-muted-foreground font-normal">
-                    {user.email}
-                  </p>
+                    <span className="text-xs text-muted-foreground">
+                      {user.role.replaceAll("_", " ")}
+                    </span>
+                  </div>
 
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {user.role}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
+                  <ChevronDown className="h-4 w-4 ml-2 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
 
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem onClick={() => navigate("/settings")}>
-                Settings
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                onClick={() => dispatch(logout())}
+              <DropdownMenuContent
+                align="end"
+                className="w-72 p-0 overflow-hidden"
               >
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+                {/* Profile Header */}
+                <div className="p-4 border-b bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={user.userDetails?.avatarUrl || ""} />
+
+                      <AvatarFallback>
+                        {getInitials(user.userDetails?.name || user.email)}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold truncate">
+                        {user.userDetails?.name || "User"}
+                      </p>
+
+                      <p className="text-sm text-muted-foreground truncate">
+                        {user.email}
+                      </p>
+
+                      <span className="inline-flex mt-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                        {user.role.replaceAll("_", " ")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Menu */}
+                <div className="p-2">
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => navigate("/profile")}
+                  >
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => navigate("/settings")}
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </DropdownMenuItem>
+                </div>
+
+                <DropdownMenuSeparator />
+
+                <div className="p-2">
+                  <DropdownMenuItem
+                    className="cursor-pointer text-red-500 focus:text-red-500"
+                    onClick={() => dispatch(logout())}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
     </header>
   );
