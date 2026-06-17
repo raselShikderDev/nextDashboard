@@ -44,6 +44,12 @@ export function getInitials(name: string): string {
   return data
 }
 
+export const formatRole = (role: string) =>
+  role
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()

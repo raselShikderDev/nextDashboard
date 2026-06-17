@@ -4,7 +4,7 @@ import { Input } from "../components/ui/input";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { togglePanel } from "../features/notifications/slice/notificationsSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
-import { getInitials } from "../lib/utils";
+import { formatRole, getInitials } from "../lib/utils";
 import { useNavigate } from "react-router-dom";
 import {
   Settings,
@@ -50,7 +50,6 @@ export function Header({ onMenuClick }: HeaderProps) {
     }
   }, [isDark]);
 
-  console.log("Current User:", user);
 
   return (
     <header className="sticky top-0 z-40 h-16 border-b bg-background/80 backdrop-blur-xl">
@@ -65,7 +64,6 @@ export function Header({ onMenuClick }: HeaderProps) {
           >
             <Menu className="h-5 w-5" />
           </Button>
-
           <div className="hidden md:block">
             <h1 className="text-lg font-semibold tracking-tight">Dashboard</h1>
             <p className="text-xs text-muted-foreground">
@@ -101,7 +99,6 @@ export function Header({ onMenuClick }: HeaderProps) {
               <Moon className="h-4 w-4" />
             )}
           </Button>
-
           {/* Notifications */}
           <Button
             variant="outline"
@@ -110,7 +107,6 @@ export function Header({ onMenuClick }: HeaderProps) {
             onClick={() => dispatch(togglePanel())}
           >
             <Bell className="h-4 w-4" />
-
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                 {unreadCount > 99 ? "99+" : unreadCount}
@@ -131,26 +127,21 @@ export function Header({ onMenuClick }: HeaderProps) {
                       src={user.userDetails?.avatarUrl || ""}
                       alt={user.userDetails?.name || user.email}
                     />
-
                     <AvatarFallback>
                       {getInitials(user.userDetails?.name || user.email)}
                     </AvatarFallback>
                   </Avatar>
-
                   <div className="hidden md:flex flex-col items-start ml-2">
                     <span className="text-sm font-medium leading-none">
                       {user.userDetails?.name || "User"}
                     </span>
-
                     <span className="text-xs text-muted-foreground">
-                      {user.role.replaceAll("_", " ")}
+{formatRole(user.role)}
                     </span>
                   </div>
-
                   <ChevronDown className="h-4 w-4 ml-2 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
-
               <DropdownMenuContent
                 align="end"
                 className="w-72 p-0 overflow-hidden"
@@ -160,23 +151,19 @@ export function Header({ onMenuClick }: HeaderProps) {
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={user.userDetails?.avatarUrl || ""} />
-
                       <AvatarFallback>
                         {getInitials(user.userDetails?.name || user.email)}
                       </AvatarFallback>
                     </Avatar>
-
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold truncate">
                         {user.userDetails?.name || "User"}
                       </p>
-
                       <p className="text-sm text-muted-foreground truncate">
                         {user.email}
                       </p>
-
                       <span className="inline-flex mt-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                        {user.role.replaceAll("_", " ")}
+                       {formatRole(user.role)}
                       </span>
                     </div>
                   </div>
