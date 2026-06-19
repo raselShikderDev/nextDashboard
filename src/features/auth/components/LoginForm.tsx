@@ -47,7 +47,7 @@ const onSubmit = async (data: LoginFormData) => {
       variant:"default"
     });
 
-    navigate("/", { replace: true });
+    navigate("/dashboard", { replace: true });
   } catch (error: any) {
     toast({
       title: "Login failed",

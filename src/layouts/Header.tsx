@@ -43,6 +43,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   const handleLogout = () => {
     logout();
+    navigate("/login");
   };
 
   console.log({ user });
