@@ -1,30 +1,23 @@
-import { Bell, Moon, Sun, Search, Menu } from "lucide-react";
+import { Bell, Menu, Moon, Sun } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { togglePanel } from "../features/notifications/slice/notificationsSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { formatRole, getInitials } from "../lib/utils";
 import { useNavigate } from "react-router-dom";
-import {
-  Settings,
-  LogOut,
-  UserCircle,
-  ChevronDown,
-  Shield,
-} from "lucide-react";
+import { Settings, LogOut, UserCircle, ChevronDown } from "lucide-react";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 import { logout } from "../features/auth/slice/authSlice";
 import { useState, useEffect } from "react";
 import { useGetMeQuery } from "@/features/users/api/usersApi";
+import { useLogoutMutation } from "@/features/auth/api/authApi";
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -33,11 +26,9 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
-  const { data: user, isLoading } = useGetMeQuery();
-
+  const { data: user, isLoading: getMeLoading } = useGetMeQuery();
+  const [logout, { isLoading: logoutLoading }] = useLogoutMutation();
   const unreadCount = useAppSelector((s) => s.notifications.unreadCount);
-
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains("dark"),
   );
@@ -50,6 +41,11 @@ export function Header({ onMenuClick }: HeaderProps) {
     }
   }, [isDark]);
 
+  const handleLogout = () => {
+    logout();
+  };
+
+  console.log({ user });
 
   return (
     <header className="sticky top-0 z-40 h-16 border-b bg-background/80 backdrop-blur-xl">
@@ -115,7 +111,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           </Button>
 
           {/* User */}
-          {!isLoading && user && (
+          {!getMeLoading && user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -136,7 +132,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                       {user.userDetails?.name || "User"}
                     </span>
                     <span className="text-xs text-muted-foreground">
-{formatRole(user.role)}
+                      {formatRole(user.role)}
                     </span>
                   </div>
                   <ChevronDown className="h-4 w-4 ml-2 text-muted-foreground" />
@@ -152,7 +148,8 @@ export function Header({ onMenuClick }: HeaderProps) {
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={user.userDetails?.avatarUrl || ""} />
                       <AvatarFallback>
-                        {getInitials(user.userDetails?.name || user.email)}
+                        {/* {getInitials(user.userDetails?.name || user.email)} */}
+                        {"name"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
@@ -163,7 +160,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                         {user.email}
                       </p>
                       <span className="inline-flex mt-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                       {formatRole(user.role)}
+                        {formatRole(user.role)}
                       </span>
                     </div>
                   </div>
@@ -193,7 +190,8 @@ export function Header({ onMenuClick }: HeaderProps) {
                 <div className="p-2">
                   <DropdownMenuItem
                     className="cursor-pointer text-red-500 focus:text-red-500"
-                    onClick={() => dispatch(logout())}
+                    onClick={() => dispatch(handleLogout)}
+                    disabled={logoutLoading}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout
