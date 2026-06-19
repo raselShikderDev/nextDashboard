@@ -8,6 +8,7 @@ import { getInitials } from "../lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip";
+import { useGetMeQuery } from "@/features/users/api/usersApi";
 
 const NAV_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -26,7 +27,7 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const dispatch = useAppDispatch();
-  const user = useAppSelector((s) => s.auth.user);
+  const { data: user, isLoading: getMeLoading } = useGetMeQuery();
   const unreadCount = useAppSelector((s) => s.notifications.unreadCount);
   const location = useLocation();
 
@@ -81,13 +82,13 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           {user && (
             <div className={cn("flex items-center gap-3 px-2 py-2 rounded-lg", collapsed ? "justify-center" : "")}>
               <Avatar className="w-8 h-8 shrink-0">
-                <AvatarImage src={user.avatar} />
-                <AvatarFallback className="text-xs bg-primary text-primary-foreground">{getInitials(user.name)}</AvatarFallback>
+                <AvatarImage src={user?.userDetails?.avatarUrl || " "} />
+                <AvatarFallback className="text-xs bg-primary text-primary-foreground">{getInitials(user?.userDetails?.name)}</AvatarFallback>
               </Avatar>
               <AnimatePresence>
                 {!collapsed && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{user.name}</p>
+                    <p className="text-sm font-medium truncate">{user?.userDetails?.name}</p>
                     <p className="text-xs text-muted-foreground truncate capitalize">{user.role}</p>
                   </motion.div>
                 )}

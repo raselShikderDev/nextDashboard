@@ -39,10 +39,18 @@ export function formatNumber(num: number): string {
   return num.toString();
 }
 
-export function getInitials(name: string): string {
-  const data = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-  return data
+export function getInitials(name?: string | null): string {
+  if (!name) return "U";
+
+  return name
+    .trim()
+    .split(/\s+/)
+    .map((n) => n.charAt(0))
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 }
+
 
 export const formatRole = (role: string) =>
   role
