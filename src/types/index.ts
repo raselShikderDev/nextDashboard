@@ -90,10 +90,14 @@ export interface Notification {
 
 export interface PaginatedResponse<T> {
   data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPage: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
 }
 
 export interface ApiError {

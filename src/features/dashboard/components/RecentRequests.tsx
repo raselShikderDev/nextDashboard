@@ -4,16 +4,17 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../../components/ui/button";
 import { Badge } from "../../../components/ui/badge";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
-import type { Request } from "../../../types";
 import { cn } from "../../../lib/utils";
 import {
   formatCurrency,
   formatRelativeTime,
+  formatRole,
   getInitials,
 } from "@/app/helpers/helpers";
+import { ServiceRequest } from "@/types/request.types";
 
 interface RecentRequestsProps {
-  requests: Request[];
+  requests: ServiceRequest[];
   isLoading?: boolean;
 }
 
@@ -53,63 +54,89 @@ export function RecentRequests({ requests, isLoading }: RecentRequestsProps) {
       transition={{ delay: 0.25 }}
       className="bg-card border border-border rounded-xl p-5"
     >
-      <div className="flex items-center justify-between mb-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="font-semibold text-base">Recent Requests</h3>
+          <h3 className="text-lg font-semibold tracking-tight">
+            Recent Requests
+          </h3>
           <p className="text-sm text-muted-foreground">
-            Latest service requests
+            Latest service activities
           </p>
         </div>
+
         <Button
           variant="ghost"
           size="sm"
-          className="gap-1 text-primary"
+          className="rounded-xl"
           onClick={() => navigate("/requests")}
         >
-          View all <ArrowRight className="w-3.5 h-3.5" />
+          View All
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
-      <div className="space-y-1">
-        {requests.slice(0, 6).map((request, i) => (
+      {/* Request Card */}
+      {requests.map((request: ServiceRequest, i) => {
+        return (
           <motion.div
             key={request.id}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 + i * 0.05 }}
-            className="flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-            onClick={() => navigate(`/requests`)}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            onClick={() => navigate(`/requests/${request.id}`)}
+            className="group rounded-2xl border border-border bg-background/50 p-4 transition-all hover:border-primary/30 hover:bg-muted/30 hover:shadow-sm cursor-pointer"
           >
-            <Avatar className="w-8 h-8 shrink-0">
-              <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                {request.user
-                  ? getInitials(request.user?.userDetails.name)
-                  : "?"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{request.title}</p>
-              <p className="text-xs text-muted-foreground">
-                {request.user?.userDetails.name ?? "Unknown"} ·{" "}
-                {formatRelativeTime(request.createdAt)}
-              </p>
-            </div>
-            <div className="flex flex-col items-end gap-1 shrink-0">
-              <Badge
-                variant="outline"
-                className={cn(
-                  "text-xs capitalize",
-                  statusStyles[request.status],
-                )}
-              >
-                {request.status.replace("_", " ")}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                {formatCurrency(request.amount)}
-              </span>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3 min-w-0 flex-1">
+                <Avatar className="h-10 w-10 shrink-0">
+                  <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                    {getInitials(request.guestName || "Guest")}
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-medium truncate">{request.guestName}</p>
+
+                    <Badge variant="secondary" className="text-[10px] shrink-0">
+                      {request.requestNo}
+                    </Badge>
+                  </div>
+
+                  <p className="text-sm text-muted-foreground truncate">
+                    {request.service.name}
+                  </p>
+
+                  <p className="text-xs text-muted-foreground">
+                    {formatRelativeTime(request.createdAt)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 sm:min-w-[120px]">
+                <Badge
+                  className={cn(
+                    "rounded-full border-0 text-xs",
+                    statusStyles[request.status],
+                  )}
+                >
+                  {formatRole(request.status)}
+                </Badge>
+
+                <span className="text-sm font-semibold whitespace-nowrap">
+                  {formatCurrency(
+                    Number(
+                      request.finalPrice ??
+                        request.payment?.amount ??
+                        request.service.price,
+                    ),
+                  )}
+                </span>
+              </div>
             </div>
           </motion.div>
-        ))}
-      </div>
+        );
+      })}
     </motion.div>
   );
 }
