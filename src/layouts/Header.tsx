@@ -3,7 +3,6 @@ import { Button } from "../components/ui/button";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { togglePanel } from "../features/notifications/slice/notificationsSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
-import { formatRole, getInitials } from "../lib/utils";
 import { useNavigate } from "react-router-dom";
 import { Settings, LogOut, UserCircle, ChevronDown } from "lucide-react";
 
@@ -18,6 +17,7 @@ import { logout } from "../features/auth/slice/authSlice";
 import { useState, useEffect } from "react";
 import { useGetMeQuery } from "@/features/users/api/usersApi";
 import { useLogoutMutation } from "@/features/auth/api/authApi";
+import { formatRole, getInitials } from "@/app/helpers/helpers";
 
 interface HeaderProps {
   onMenuClick?: () => void;

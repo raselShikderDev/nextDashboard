@@ -11,7 +11,7 @@ import { loginSchema, type LoginFormData } from "../../../lib/validators";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
-import { useToast } from "../../../hooks/useToast";
+import { toast } from "sonner";
 import { cn } from "../../../lib/utils";
 
 export function LoginForm() {
@@ -19,9 +19,7 @@ export function LoginForm() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
   const [login, { isLoading }] = useLoginMutation();
-
 
   const {
     register,
@@ -35,31 +33,29 @@ export function LoginForm() {
     },
   });
 
-const onSubmit = async (data: LoginFormData) => {
-  try {
-    const result = await login(data).unwrap();
+  const onSubmit = async (data: LoginFormData) => {
+    const loadingId = toast.loading("Signing you in...");
 
-    dispatch(setCredentials(result.user));
+    try {
+      const result = await login(data).unwrap();
 
-    toast({
-      title: "Welcome back!",
-      description: `Logged in as ${result.user.role}`,
-      variant:"default"
-    });
+      dispatch(setCredentials(result.user));
 
-    navigate("/dashboard", { replace: true });
-  } catch (error: any) {
-    toast({
-      title: "Login failed",
-      description:
-        error?.data?.message ||
-        "Invalid email or password",
-      variant: "destructive",
-    });
+      toast.success("Welcome back 👋", {
+        id: loadingId,
+        description: "Successfully signed in",
+      });
 
-    console.error(error);
-  }
-};
+      navigate("/dashboard", { replace: true });
+    } catch (error: any) {
+      toast.error("Login failed", {
+        id: loadingId,
+        description: error?.message || "Invalid credentials",
+      });
+
+      console.error(error);
+    }
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
