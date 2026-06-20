@@ -56,90 +56,116 @@ export function LoginForm() {
       console.error(error);
     }
   };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="w-full"
+      className="w-full max-w-sm sm:max-w-md mx-auto px-4 sm:px-0"
     >
-      <div className="flex flex-col items-center mb-8">
-        <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-lg">
-          <Shield className="w-8 h-8 text-primary-foreground" />
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight">Admin Portal</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Sign in to your account
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              id="email"
-              type="email"
-              placeholder="admin@example.com"
-              className={cn("pl-10", errors.email && "border-destructive")}
-              {...register("email")}
-            />
+      <div className="bg-card text-card-foreground rounded-2xl border border-border shadow-sm dark:shadow-none p-6 sm:p-8">
+        <div className="flex flex-col items-center mb-6 sm:mb-8">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-lg dark:shadow-primary/20">
+            <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-primary-foreground" />
           </div>
-          {errors.email && (
-            <p className="text-xs text-destructive">{errors.email.message}</p>
-          )}
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+            Admin Portal
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm text-center">
+            Sign in to your account
+          </p>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              className={cn(
-                "pl-10 pr-10",
-                errors.password && "border-destructive",
-              )}
-              {...register("password")}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 sm:space-y-5"
+        >
+          <div className="space-y-2">
+            <Label
+              htmlFor="email"
+              className="text-sm font-medium text-foreground"
             >
-              {showPassword ? (
-                <EyeOff className="w-4 h-4" />
-              ) : (
-                <Eye className="w-4 h-4" />
-              )}
-            </button>
+              Email
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="admin@example.com"
+                className={cn(
+                  "pl-10 h-11 sm:h-10 text-base sm:text-sm",
+                  errors.email &&
+                    "border-destructive focus-visible:ring-destructive",
+                )}
+                {...register("email")}
+              />
+            </div>
+            {errors.email && (
+              <p className="text-xs text-destructive font-medium">
+                {errors.email.message}
+              </p>
+            )}
           </div>
-          {errors.password && (
-            <p className="text-xs text-destructive">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
 
-        <Button type="submit" className="w-full" disabled={isLoading} size="lg">
-          {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Signing in...
-            </>
-          ) : (
-            "Sign In"
-          )}
-        </Button>
-      </form>
+          <div className="space-y-2">
+            <Label
+              htmlFor="password"
+              className="text-sm font-medium text-foreground"
+            >
+              Password
+            </Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                className={cn(
+                  "pl-10 pr-10 h-11 sm:h-10 text-base sm:text-sm",
+                  errors.password &&
+                    "border-destructive focus-visible:ring-destructive",
+                )}
+                {...register("password")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-xs text-destructive font-medium">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
 
-      {/* <div className="mt-6 p-3 rounded-lg">
-        <p className="text-xs text-muted-foreground text-center font-medium">Demo Credentials</p>
-        <p className="text-xs text-muted-foreground text-center mt-1">admin@example.com / password123</p>
-      </div> */}
+          <Button
+            type="submit"
+            className="w-full h-11 sm:h-10 text-base sm:text-sm"
+            disabled={isLoading}
+            size="default"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              "Sign In"
+            )}
+          </Button>
+        </form>
+      </div>
     </motion.div>
   );
 }
