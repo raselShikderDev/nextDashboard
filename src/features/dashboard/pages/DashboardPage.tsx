@@ -222,7 +222,7 @@ export function DashboardPage() {
         </div>
       </div>
       <RecentRequests
-        requests={displayRequests}
+        requests={displayRequests as ServiceRequest[]}
         isLoading={requestsLoading && !requests}
       />
     </PageWrapper>

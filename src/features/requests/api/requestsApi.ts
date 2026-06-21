@@ -4,27 +4,28 @@ import type { Request, PaginatedResponse, FilterParams } from "../../../types";
 
 export const requestsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getRequests: builder.query<PaginatedResponse<ServiceRequest>, FilterParams>(
-      {
-        query: (params = {}) => {
-          const qs = new URLSearchParams();
+    getRequests: builder.query<ServiceRequest[], FilterParams>({
+      query: (params = {}) => {
+        const qs = new URLSearchParams();
 
-          Object.entries(params).forEach(([k, v]) => {
-            if (v !== undefined && v !== "") {
-              qs.set(k, String(v));
-            }
-          });
-          return `/requests?${qs.toString()}`;
-        },
-        transformResponse: (res: {
-          data: PaginatedResponse<ServiceRequest>;
-        }) => {
-          console.log("REQUESTS RESPONSE:", res?.data);
-          return res?.data;
-        },
-        // providesTags: (result) => result ? [...result.data.map(({ id }) => ({ type: "Request" as const, id, })),  { type: "Request" as const, id: "LIST" },] : [{ type: "Request" as const, id: "LIST" }],
+        Object.entries(params).forEach(([k, v]) => {
+          if (v !== undefined && v !== "") {
+            qs.set(k, String(v));
+          }
+        });
+        return `/requests?${qs.toString()}`;
       },
-    ),
+      transformResponse: (res: { data: ServiceRequest[] }) => {
+        return res?.data;
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Request" as const, id })),
+              { type: "Request" as const, id: "LIST" },
+            ]
+          : [{ type: "Request" as const, id: "LIST" }],
+    }),
 
     getRequestById: builder.query<Request, string>({
       query: (id) => `/requests/${id}`,
