@@ -1,21 +1,6 @@
-export type RequestStatus =
-  | "SUBMITTED"
-  | "CLAIMED"
-  | "ASSIGNED"
-  | "QUOTED"
-  | "PAYMENT_PENDING"
-  | "PAYMENT_VERIFIED"
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "DELIVERED"
-  | "CANCELLED";
+import { UserDetails } from ".";
+import { GuestSource, RequestStatus } from "./enums.types";
 
-export type GuestSource =
-  | "REFERRAL"
-  | "FACEBOOK"
-  | "WEBSITE"
-  | "WHATSAPP"
-  | "OTHER";
 
 export interface RequestService {
   id: string;
@@ -57,6 +42,7 @@ export interface ServiceRequest {
   currency: string;
   deliveryMessage: string | null;
   submittedAt: string;
+  user:UserDetails | null;
   dueDate: string | null;
   completedAt: string | null;
   createdAt: string;

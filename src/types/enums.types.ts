@@ -1,0 +1,110 @@
+export type Role =
+  | "USER"
+  | "MANAGER"
+  | "ADMIN"
+  | "SUPER_ADMIN";
+
+export type RequestStatus =
+  | "DRAFT"
+  | "PENDING"
+  | "SUBMITTED"
+  | "UNDER_REVIEW"
+  | "PAYMENT_PENDING"
+  | "PAYMENT_SUBMITTED"
+  | "PAYMENT_VERIFIED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "REJECTED"
+  | "CANCELLED"
+  | "APPROVED"
+  | "READY_FOR_DELIVERY"
+  | "DELIVERED";
+
+export type PaymentMethod =
+  | "BKASH"
+  | "NAGAD"
+  | "ROCKET"
+  | "DUTCH_BANGLA"
+  | "BANK_TRANSFER"
+  | "CASH";
+
+export type PaymentStatus =
+  | "SUBMITTED"
+  | "VERIFIED"
+  | "REJECTED"
+  | "REFUNDED";
+
+export type DocumentType =
+  | "USER_UPLOAD"
+  | "PAYMENT_PROOF"
+  | "ADDITIONAL_DOCUMENT"
+  | "FINAL_DELIVERY"
+  | "INTERNAL_DOCUMENT";
+
+export type NotificationType =
+  | "REQUEST_SUBMITTED"
+  | "REQUEST_UNDER_REVIEW"
+  | "PAYMENT_REQUIRED"
+  | "PAYMENT_SUBMITTED"
+  | "PAYMENT_VERIFIED"
+  | "PAYMENT_REJECTED"
+  | "REQUEST_IN_PROGRESS"
+  | "REQUEST_COMPLETED"
+  | "REQUEST_REJECTED"
+  | "REQUEST_CANCELLED"
+  | "DOCUMENT_REQUESTED"
+  | "ADMIN_ALERT"
+  | "GENERAL";
+
+export type ActionType =
+  | "REQUEST_CREATED"
+  | "REQUEST_UPDATED"
+  | "REQUEST_STATUS_CHANGED"
+  | "REQUEST_ASSIGNED"
+  | "REQUEST_NOTE_ADDED"
+  | "REQUEST_CANCELLED"
+  | "REQUEST_REJECTED"
+  | "REQUEST_COMPLETED"
+  | "REQUEST_QUOTE_SET"
+  | "REQUEST_DELIVERED"
+  | "PAYMENT_SUBMITTED"
+  | "PAYMENT_VERIFIED"
+  | "PAYMENT_REJECTED"
+  | "PAYMENT_REFUNDED"
+  | "DOCUMENT_UPLOADED"
+  | "DOCUMENT_DELETED"
+  | "USER_CREATED"
+  | "USER_UPDATED"
+  | "USER_ROLE_CHANGED"
+  | "USER_ACTIVATED"
+  | "USER_DEACTIVATED"
+  | "SERVICE_CREATED"
+  | "SERVICE_UPDATED"
+  | "SERVICE_TOGGLED"
+  | "USER_LOGIN"
+  | "USER_LOGOUT"
+  | "PASSWORD_RESET";
+
+export type FieldType =
+  | "TEXT"
+  | "TEXTAREA"
+  | "NUMBER"
+  | "EMAIL"
+  | "PHONE"
+  | "PASSWORD"
+  | "DATE"
+  | "FILE"
+  | "SELECT"
+  | "MULTI_SELECT"
+  | "RADIO"
+  | "CHECKBOX"
+  | "URL";
+
+export type GuestSource =
+  | "FACEBOOK"
+  | "WHATSAPP"
+  | "LINKEDIN"
+  | "TELEGRAM"
+  | "WEBSITE"
+  | "REFERRAL"
+  | "OTHERS";

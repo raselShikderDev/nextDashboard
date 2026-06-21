@@ -18,7 +18,6 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
   const [login, { isLoading }] = useLoginMutation();
 
   const {
@@ -35,24 +34,19 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     const loadingId = toast.loading("Signing you in...");
-
     try {
       const result = await login(data).unwrap();
-
       dispatch(setCredentials(result.user));
-
+      navigate("/dashboard", { replace: true });
       toast.success("Welcome back 👋", {
         id: loadingId,
         description: "Successfully signed in",
       });
-
-      navigate("/dashboard", { replace: true });
     } catch (error: any) {
       toast.error("Login failed", {
         id: loadingId,
         description: error?.message || "Invalid credentials",
       });
-
       console.error(error);
     }
   };

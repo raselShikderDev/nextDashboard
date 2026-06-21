@@ -46,7 +46,6 @@ export function Header({ onMenuClick }: HeaderProps) {
     navigate("/login");
   };
 
-  console.log({ user });
 
   return (
     <header className="sticky top-0 z-40 h-16 border-b bg-background/80 backdrop-blur-xl">

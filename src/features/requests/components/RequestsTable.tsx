@@ -18,9 +18,9 @@ import {
   DropdownMenuTrigger,
 } from "../../../components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
-import type { Request } from "../../../types";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency, formatDate, getInitials } from "@/app/helpers/helpers";
+import { ServiceRequest } from "@/types/request.types";
 
 const priorityConfig = {
   low: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
@@ -30,17 +30,17 @@ const priorityConfig = {
 };
 
 interface RequestsTableProps {
-  data: Request[];
+  data: ServiceRequest[];
   total: number;
   page: number;
   limit: number;
   isLoading: boolean;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
-  onEdit: (r: Request) => void;
-  onDelete: (r: Request) => void;
-  onApprove: (r: Request) => void;
-  onReject: (r: Request) => void;
+  onEdit: (r: ServiceRequest) => void;
+  onDelete: (r: ServiceRequest) => void;
+  onApprove: (r: ServiceRequest) => void;
+  onReject: (r: ServiceRequest) => void;
 }
 
 export function RequestsTable({
@@ -57,7 +57,7 @@ export function RequestsTable({
   onReject,
 }: RequestsTableProps) {
   const navigate = useNavigate();
-  const columns: Column<Request>[] = [
+  const columns: Column<ServiceRequest>[] = [
     {
       key: "user",
       header: "Requester",
@@ -65,13 +65,15 @@ export function RequestsTable({
         <div className="flex items-center gap-2.5">
           <Avatar className="w-8 h-8">
             <AvatarFallback className="text-xs bg-primary/10 text-primary">
-              {row.user ? getInitials(row.user?.userDetails.name) : "?"}
+              {row?.guestName ? getInitials(row?.guestName) : getInitials(row?.user?.name)}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium">{row.user?.userDetails.name ?? "Unknown"}</p>
+            <p className="text-sm font-medium">
+              {row?.guestName ? getInitials(row?.guestName) : getInitials(row?.user?.name)}
+            </p>
             <p className="text-xs text-muted-foreground">
-              {row.user?.email ?? "-"}
+              {row?.guestEmail ?? "-"}
             </p>
           </div>
         </div>
@@ -83,7 +85,7 @@ export function RequestsTable({
       cell: (row) => (
         <div>
           <p className="text-sm font-medium max-w-[200px] truncate">
-            {row.title}
+            {row?.service?.name}
           </p>
           <p className="text-xs text-muted-foreground">
             {row.service?.name ?? row.serviceId}
@@ -91,18 +93,18 @@ export function RequestsTable({
         </div>
       ),
     },
-    {
-      key: "priority",
-      header: "Priority",
-      cell: (row) => (
-        <Badge
-          variant="outline"
-          className={`capitalize text-xs ${priorityConfig[row.priority]}`}
-        >
-          {row.priority}
-        </Badge>
-      ),
-    },
+    // {
+    //   key: "priority",
+    //   header: "Priority",
+    //   cell: (row) => (
+    //     <Badge
+    //       variant="outline"
+    //       className={`capitalize text-xs ${priorityConfig[row.priority]}`}
+    //     >
+    //       {row.priority}
+    //     </Badge>
+    //   ),
+    // },
     {
       key: "status",
       header: "Status",

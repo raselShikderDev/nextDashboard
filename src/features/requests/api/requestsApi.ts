@@ -4,7 +4,7 @@ import type { Request, PaginatedResponse, FilterParams } from "../../../types";
 
 export const requestsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getRequests: builder.query<ServiceRequest[], FilterParams>({
+    getRequests: builder.query<PaginatedResponse<ServiceRequest[]>, FilterParams>({
       query: (params = {}) => {
         const qs = new URLSearchParams();
 
@@ -15,13 +15,11 @@ export const requestsApi = baseApi.injectEndpoints({
         });
         return `/requests?${qs.toString()}`;
       },
-      transformResponse: (res: { data: ServiceRequest[] }) => {
-        return res?.data;
-      },
+     
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: "Request" as const, id })),
+              ...result?.data.map((request) => ({ type: "Request" as const, request })),
               { type: "Request" as const, id: "LIST" },
             ]
           : [{ type: "Request" as const, id: "LIST" }],

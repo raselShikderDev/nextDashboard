@@ -1,7 +1,4 @@
-export type UserRole = "admin" | "manager" | "user";
-export type RequestStatus = "pending" | "approved" | "rejected" | "in_progress" | "completed";
-export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
-export type ServiceStatus = "active" | "inactive" | "deprecated";
+import { PaymentStatus, Role } from "./enums.types";
 
 export interface UserDetails {
   id: string;
@@ -15,7 +12,7 @@ export interface UserDetails {
 export interface User {
   id: string;
   email: string;
-  role: UserRole;
+  role: Role;
   isActive: boolean;
   isVerified: boolean;
   createdAt: string;
@@ -32,35 +29,6 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface Service {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  status: ServiceStatus;
-  icon?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Request {
-  id: string;
-  title: string;
-  description: string;
-  status: RequestStatus;
-  priority: "low" | "medium" | "high" | "urgent";
-  userId: string;
-  user?: User;
-  serviceId: string;
-  service?: Service;
-  assignedTo?: string;
-  assignee?: User;
-  amount: number;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface Payment {
   id: string;

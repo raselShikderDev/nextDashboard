@@ -140,9 +140,9 @@ export function DashboardPage() {
   const displayStats = stats ?? MOCK_STATS;
   const displayRevenue = revenue ?? MOCK_REVENUE;
   const displayGrowth = growth ?? MOCK_GROWTH;
-  const displayRequests = requests ?? MOCK_REQUESTS;
+  const displayRequests = requests?.data ?? MOCK_REQUESTS;
   console.log({ displayRequests });
-  console.log({ "requests?.data": requests });
+  console.log({ "requests?.data": requests?.data });
 
   return (
     <PageWrapper>
