@@ -17,10 +17,7 @@ interface RevenueChartProps {
   isLoading?: boolean;
 }
 
-export function RevenueChart({
-  data,
-  isLoading,
-}: RevenueChartProps) {
+export function RevenueChart({ data, isLoading }: RevenueChartProps) {
   if (isLoading) {
     return (
       <div className="bg-card border border-border rounded-2xl p-6 animate-pulse">
@@ -41,12 +38,10 @@ export function RevenueChart({
         <h3 className="text-lg font-semibold tracking-tight">
           Revenue vs Expenses
         </h3>
-
         <p className="text-sm text-muted-foreground">
           Monthly financial overview
         </p>
       </div>
-
       <ResponsiveContainer width="100%" height={280}>
         <AreaChart
           data={data}
@@ -58,52 +53,21 @@ export function RevenueChart({
           }}
         >
           <defs>
-            <linearGradient
-              id="revenueGradient"
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop
-                offset="5%"
-                stopColor="#3B82F6"
-                stopOpacity={0.35}
-              />
-              <stop
-                offset="95%"
-                stopColor="#3B82F6"
-                stopOpacity={0}
-              />
+            <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.35} />
+              <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
             </linearGradient>
-
-            <linearGradient
-              id="expenseGradient"
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop
-                offset="5%"
-                stopColor="#EF4444"
-                stopOpacity={0.3}
-              />
-              <stop
-                offset="95%"
-                stopColor="#EF4444"
-                stopOpacity={0}
-              />
+            <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#EF4444" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
             </linearGradient>
           </defs>
-
           <CartesianGrid
             vertical={false}
             strokeDasharray="4 4"
             stroke="hsl(var(--border))"
             opacity={0.4}
           />
-
           <XAxis
             dataKey="month"
             axisLine={false}
@@ -113,7 +77,6 @@ export function RevenueChart({
               fill: "hsl(var(--muted-foreground))",
             }}
           />
-
           <YAxis
             axisLine={false}
             tickLine={false}
@@ -121,29 +84,56 @@ export function RevenueChart({
               fontSize: 12,
               fill: "hsl(var(--muted-foreground))",
             }}
-            tickFormatter={(value) =>
-              `$${(value / 1000).toFixed(0)}k`
-            }
+            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
           />
-
           <Tooltip
             cursor={false}
-            formatter={(value: number) => [
-              formatCurrency(value),
-            ]}
-            contentStyle={{
-              backgroundColor: "hsl(var(--card))",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "16px",
-              color: "hsl(var(--foreground))",
-              boxShadow: "0 12px 30px rgba(0,0,0,.18)",
-            }}
-            labelStyle={{
-              color: "hsl(var(--foreground))",
-              fontWeight: 600,
+            content={({ active, payload, label }) => {
+              if (!active || !payload?.length) return null;
+
+              return (
+                <div
+                  className="
+          min-w-[180px]
+          rounded-2xl
+          border border-white/10
+          bg-background/70
+          backdrop-blur-xl
+          shadow-2xl
+          px-4 py-3
+        "
+                >
+                  <p className="mb-2 text-sm font-semibold text-primary">
+                    {label}
+                  </p>
+
+                  {payload.map((entry) => (
+                    <div
+                      key={entry.name}
+                      className="flex items-center justify-between gap-6 py-1"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{
+                            backgroundColor: entry.color,
+                          }}
+                        />
+
+                        <span className="text-sm text-foreground">
+                          {entry.name}
+                        </span>
+                      </div>
+
+                      <span className="text-sm font-semibold text-foreground">
+                        {formatCurrency(Number(entry.value))}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              );
             }}
           />
-
           <Legend
             iconType="circle"
             wrapperStyle={{
@@ -151,7 +141,6 @@ export function RevenueChart({
               paddingTop: "10px",
             }}
           />
-
           <Area
             type="monotone"
             dataKey="revenue"
@@ -165,7 +154,6 @@ export function RevenueChart({
               strokeWidth: 2,
             }}
           />
-
           <Area
             type="monotone"
             dataKey="expenses"

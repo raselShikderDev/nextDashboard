@@ -16,10 +16,7 @@ interface UserGrowthChartProps {
   isLoading?: boolean;
 }
 
-export function UserGrowthChart({
-  data,
-  isLoading,
-}: UserGrowthChartProps) {
+export function UserGrowthChart({ data, isLoading }: UserGrowthChartProps) {
   if (isLoading) {
     return (
       <div className="bg-card border border-border rounded-2xl p-6 animate-pulse">
@@ -37,9 +34,7 @@ export function UserGrowthChart({
       className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all"
     >
       <div className="mb-5">
-        <h3 className="text-lg font-semibold tracking-tight">
-          User Growth
-        </h3>
+        <h3 className="text-lg font-semibold tracking-tight">User Growth</h3>
 
         <p className="text-sm text-muted-foreground">
           Monthly user acquisition and engagement
@@ -63,7 +58,6 @@ export function UserGrowthChart({
             stroke="hsl(var(--border))"
             opacity={0.4}
           />
-
           <XAxis
             dataKey="month"
             axisLine={false}
@@ -82,22 +76,54 @@ export function UserGrowthChart({
               fill: "hsl(var(--muted-foreground))",
             }}
           />
-
           <Tooltip
             cursor={false}
-            contentStyle={{
-              backgroundColor: "hsl(var(--card))",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "16px",
-              color: "hsl(var(--foreground))",
-              boxShadow: "0 12px 30px rgba(0,0,0,.18)",
-            }}
-            labelStyle={{
-              color: "hsl(var(--foreground))",
-              fontWeight: 600,
+            content={({ active, payload, label }) => {
+              if (!active || !payload?.length) return null;
+
+              return (
+                <div
+                  className="
+          min-w-[180px]
+          rounded-2xl
+          border border-border/50
+          bg-background/80
+          backdrop-blur-xl
+          shadow-xl
+          px-4 py-3
+        "
+                >
+                  <p className="mb-3 text-sm font-semibold text-primary">
+                    {label}
+                  </p>
+
+                  {payload.map((entry) => (
+                    <div
+                      key={entry.name}
+                      className="flex items-center justify-between gap-6 py-1"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{
+                            backgroundColor: String(entry.color),
+                          }}
+                        />
+
+                        <span className="text-sm text-foreground">
+                          {entry.name}
+                        </span>
+                      </div>
+
+                      <span className="text-sm font-semibold text-foreground">
+                        {entry.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              );
             }}
           />
-
           <Legend
             iconType="circle"
             wrapperStyle={{
@@ -105,19 +131,20 @@ export function UserGrowthChart({
               paddingTop: "10px",
             }}
           />
-
           <Bar
             dataKey="users"
             name="New Users"
             fill="#3B82F6"
-            radius={[8, 8, 0, 0]}
+            radius={[10, 10, 0, 0]}
+            maxBarSize={28}
           />
 
           <Bar
             dataKey="active"
             name="Active Users"
-            fill="#10B981"
-            radius={[8, 8, 0, 0]}
+            fill="#8B5CF6"
+            radius={[10, 10, 0, 0]}
+            maxBarSize={28}
           />
         </BarChart>
       </ResponsiveContainer>
