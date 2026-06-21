@@ -17,97 +17,167 @@ interface RevenueChartProps {
   isLoading?: boolean;
 }
 
-export function RevenueChart({ data, isLoading }: RevenueChartProps) {
+export function RevenueChart({
+  data,
+  isLoading,
+}: RevenueChartProps) {
   if (isLoading) {
     return (
-      <div className="bg-card border border-border rounded-xl p-5 animate-pulse">
-        <div className="h-5 w-32 bg-muted rounded mb-4" />
-        <div className="h-64 bg-muted rounded" />
+      <div className="bg-card border border-border rounded-2xl p-6 animate-pulse">
+        <div className="h-5 w-40 bg-muted rounded mb-4" />
+        <div className="h-64 bg-muted rounded-xl" />
       </div>
     );
   }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
-      className="bg-card border border-border rounded-xl p-5"
+      transition={{ duration: 0.4, delay: 0.2 }}
+      className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all"
     >
-      <div className="mb-4">
-        <h3 className="font-semibold text-base">Revenue vs Expenses</h3>
+      <div className="mb-5">
+        <h3 className="text-lg font-semibold tracking-tight">
+          Revenue vs Expenses
+        </h3>
+
         <p className="text-sm text-muted-foreground">
           Monthly financial overview
         </p>
       </div>
-      <ResponsiveContainer width="100%" height={260}>
+
+      <ResponsiveContainer width="100%" height={280}>
         <AreaChart
           data={data}
-          margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+          margin={{
+            top: 10,
+            right: 10,
+            left: -10,
+            bottom: 0,
+          }}
         >
           <defs>
-            <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient
+              id="revenueGradient"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
               <stop
                 offset="5%"
-                stopColor="hsl(var(--primary))"
-                stopOpacity={0.3}
+                stopColor="#3B82F6"
+                stopOpacity={0.35}
               />
               <stop
                 offset="95%"
-                stopColor="hsl(var(--primary))"
+                stopColor="#3B82F6"
                 stopOpacity={0}
               />
             </linearGradient>
-            <linearGradient id="expensesGrad" x1="0" y1="0" x2="0" y2="1">
+
+            <linearGradient
+              id="expenseGradient"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
               <stop
                 offset="5%"
-                stopColor="hsl(var(--destructive))"
+                stopColor="#EF4444"
                 stopOpacity={0.3}
               />
               <stop
                 offset="95%"
-                stopColor="hsl(var(--destructive))"
+                stopColor="#EF4444"
                 stopOpacity={0}
               />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+
+          <CartesianGrid
+            vertical={false}
+            strokeDasharray="4 4"
+            stroke="hsl(var(--border))"
+            opacity={0.4}
+          />
+
           <XAxis
             dataKey="month"
-            tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
             axisLine={false}
             tickLine={false}
-          />
-          <YAxis
-            tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
-          />
-          <Tooltip
-            formatter={(value: number) => [formatCurrency(value), ""]}
-            contentStyle={{
-              background: "hsl(var(--card))",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "8px",
+            tick={{
               fontSize: 12,
+              fill: "hsl(var(--muted-foreground))",
             }}
           />
-          <Legend />
+
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{
+              fontSize: 12,
+              fill: "hsl(var(--muted-foreground))",
+            }}
+            tickFormatter={(value) =>
+              `$${(value / 1000).toFixed(0)}k`
+            }
+          />
+
+          <Tooltip
+            cursor={false}
+            formatter={(value: number) => [
+              formatCurrency(value),
+            ]}
+            contentStyle={{
+              backgroundColor: "hsl(var(--card))",
+              border: "1px solid hsl(var(--border))",
+              borderRadius: "16px",
+              color: "hsl(var(--foreground))",
+              boxShadow: "0 12px 30px rgba(0,0,0,.18)",
+            }}
+            labelStyle={{
+              color: "hsl(var(--foreground))",
+              fontWeight: 600,
+            }}
+          />
+
+          <Legend
+            iconType="circle"
+            wrapperStyle={{
+              fontSize: "12px",
+              paddingTop: "10px",
+            }}
+          />
+
           <Area
             type="monotone"
             dataKey="revenue"
-            stroke="hsl(var(--primary))"
-            fill="url(#revenueGrad)"
-            strokeWidth={2}
+            name="Revenue"
+            stroke="#3B82F6"
+            fill="url(#revenueGradient)"
+            strokeWidth={3}
             dot={false}
+            activeDot={{
+              r: 6,
+              strokeWidth: 2,
+            }}
           />
+
           <Area
             type="monotone"
             dataKey="expenses"
-            stroke="hsl(var(--destructive))"
-            fill="url(#expensesGrad)"
-            strokeWidth={2}
+            name="Expenses"
+            stroke="#EF4444"
+            fill="url(#expenseGradient)"
+            strokeWidth={3}
             dot={false}
+            activeDot={{
+              r: 6,
+              strokeWidth: 2,
+            }}
           />
         </AreaChart>
       </ResponsiveContainer>
