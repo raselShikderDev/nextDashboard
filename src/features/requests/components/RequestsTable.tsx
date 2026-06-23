@@ -9,7 +9,6 @@ import {
 import { DataTable, type Column } from "../../../components/DataTable";
 import { RequestStatusBadge } from "./RequestStatusBadge";
 import { Button } from "../../../components/ui/button";
-import { Badge } from "../../../components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,12 +21,6 @@ import { useNavigate } from "react-router-dom";
 import { formatCurrency, formatDate, getInitials } from "@/app/helpers/helpers";
 import { ServiceRequest } from "@/types/request.types";
 
-const priorityConfig = {
-  low: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
-  medium: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  high: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-  urgent: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-};
 
 interface RequestsTableProps {
   data: ServiceRequest[];
@@ -65,12 +58,16 @@ export function RequestsTable({
         <div className="flex items-center gap-2.5">
           <Avatar className="w-8 h-8">
             <AvatarFallback className="text-xs bg-primary/10 text-primary">
-              {row?.guestName ? getInitials(row?.guestName) : getInitials(row?.user?.name)}
+              {row?.guestName
+                ? getInitials(row?.guestName)
+                : getInitials(row?.user?.name)}
             </AvatarFallback>
           </Avatar>
           <div>
             <p className="text-sm font-medium">
-              {row?.guestName ? getInitials(row?.guestName) : getInitials(row?.user?.name)}
+              {row?.guestName
+                ? getInitials(row?.guestName)
+                : getInitials(row?.user?.name)}
             </p>
             <p className="text-xs text-muted-foreground">
               {row?.guestEmail ?? "-"}
@@ -115,7 +112,7 @@ export function RequestsTable({
       header: "Amount",
       cell: (row) => (
         <span className="font-medium tabular-nums">
-          {formatCurrency(row.amount)}
+          {formatCurrency(Number(row?.service?.price))}
         </span>
       ),
     },
@@ -148,7 +145,7 @@ export function RequestsTable({
               <Pencil className="w-4 h-4 mr-2" />
               Edit
             </DropdownMenuItem>
-            {row.status === "pending" && (
+            {row?.status === "PENDING" && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

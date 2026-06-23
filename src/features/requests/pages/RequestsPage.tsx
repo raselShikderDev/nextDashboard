@@ -25,8 +25,8 @@ import {
 } from "../api/requestsApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { usePagination } from "../../../hooks/usePagination";
-import type { Request } from "../../../types";
 import type { RequestFormData } from "../../../lib/validators";
+import { ServiceRequest } from "@/types/request.types";
 
 const NAMES = [
   "Alice Johnson",
@@ -127,10 +127,10 @@ export function RequestsPage() {
   const { page, limit, goToPage, changeLimit } = usePagination();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Request | null>(null);
-  const [rejectTarget, setRejectTarget] = useState<Request | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ServiceRequest | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<ServiceRequest | null>(null);
   const debouncedSearch = useDebounce(search);
 
   const { data, isLoading } = useGetRequestsQuery({
@@ -159,7 +159,7 @@ export function RequestsPage() {
   const handleEdit = async (formData: RequestFormData) => {
     if (!selectedRequest) return;
     try {
-      await updateRequest({ id: selectedRequest.id, body: formData }).unwrap();
+      await updateRequest({ id: selectedRequest?.id, body: formData }).unwrap();
       // toast({ title: "Request updated successfully" });
 
       setSelectedRequest(null);
@@ -180,7 +180,7 @@ export function RequestsPage() {
     }
   };
 
-  const handleApprove = async (request: Request) => {
+  const handleApprove = async (request: ServiceRequest) => {
     try {
       await approveRequest(request.id).unwrap();
       // toast({ title: "Request approved" });
@@ -277,7 +277,7 @@ export function RequestsPage() {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Delete Request"
-        description={`Are you sure you want to delete "${deleteTarget?.title}"?`}
+        description={`Are you sure you want to delete "${deleteTarget?.service?.name}"?`}
         onConfirm={handleDelete}
         isLoading={isDeleting}
         confirmLabel="Delete"
@@ -286,7 +286,7 @@ export function RequestsPage() {
         open={!!rejectTarget}
         onOpenChange={(open) => !open && setRejectTarget(null)}
         title="Reject Request"
-        description={`Are you sure you want to reject "${rejectTarget?.title}"?`}
+        description={`Are you sure you want to reject "${rejectTarget?.service?.name}"?`}
         onConfirm={handleReject}
         isLoading={isRejecting}
         confirmLabel="Reject"
