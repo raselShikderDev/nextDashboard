@@ -1,6 +1,6 @@
 import { ServiceRequest } from "@/types/request.types";
 import { baseApi } from "../../../app/baseApi";
-import type { Request, PaginatedResponse, FilterParams } from "../../../types";
+import type { PaginatedResponse, FilterParams } from "../../../types";
 
 export const requestsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -25,15 +25,15 @@ export const requestsApi = baseApi.injectEndpoints({
           : [{ type: "Request" as const, id: "LIST" }],
     }),
 
-    getRequestById: builder.query<Request, string>({
+    getRequestById: builder.query<ServiceRequest, string>({
       query: (id) => `/requests/${id}`,
-      transformResponse: (res: { data: Request }) => res.data,
+      transformResponse: (res: { data: ServiceRequest }) => res.data,
       providesTags: (_r, _e, id) => [{ type: "Request", id }],
     }),
 
-    createRequest: builder.mutation<Request, Partial<Request>>({
+    createRequest: builder.mutation<ServiceRequest, Partial<ServiceRequest>>({
       query: (body) => ({ url: "/requests", method: "POST", body }),
-      transformResponse: (res: { data: Request }) => res.data,
+      transformResponse: (res: { data: ServiceRequest }) => res.data,
       invalidatesTags: [{ type: "Request", id: "LIST" }],
     }),
 
@@ -46,7 +46,7 @@ export const requestsApi = baseApi.injectEndpoints({
         method: "PATCH",
         body,
       }),
-      transformResponse: (res: { data: Request }) => res.data,
+      transformResponse: (res: PaginatedResponse<ServiceRequest>) => res.data,
       invalidatesTags: (_r, _e, { id }) => [
         { type: "Request", id },
         { type: "Request", id: "LIST" },
@@ -58,19 +58,19 @@ export const requestsApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "Request", id: "LIST" }],
     }),
 
-    approveRequest: builder.mutation<Request, string>({
+    approveRequest: builder.mutation<ServiceRequest, string>({
       query: (id) => ({ url: `/requests/${id}/approve`, method: "PATCH" }),
-      transformResponse: (res: { data: Request }) => res.data,
+      transformResponse: (res: { data: ServiceRequest }) => res.data,
       invalidatesTags: (_r, _e, id) => [{ type: "Request", id }],
     }),
 
-    rejectRequest: builder.mutation<Request, { id: string; notes?: string }>({
+    rejectRequest: builder.mutation<ServiceRequest, { id: string; notes?: string }>({
       query: ({ id, notes }) => ({
         url: `/requests/${id}/reject`,
         method: "PATCH",
         body: { notes },
       }),
-      transformResponse: (res: { data: Request }) => res.data,
+      transformResponse: (res: { data: ServiceRequest }) => res.data,
       invalidatesTags: (_r, _e, { id }) => [{ type: "Request", id }],
     }),
   }),

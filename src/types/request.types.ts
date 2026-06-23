@@ -42,7 +42,7 @@ export interface ServiceRequest {
   currency: string;
   deliveryMessage: string | null;
   submittedAt: string;
-  user:UserDetails | null;
+  user?:UserDetails | null;
   dueDate: string | null;
   completedAt: string | null;
   createdAt: string;

@@ -27,7 +27,6 @@ export const serviceSchema = z.object({
 export const requestSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
-  priority: z.enum(["low", "medium", "high", "urgent"]),
   serviceId: z.string().min(1, "Service is required"),
   amount: z.coerce.number().min(0, "Amount must be a positive number"),
   notes: z.string().optional(),

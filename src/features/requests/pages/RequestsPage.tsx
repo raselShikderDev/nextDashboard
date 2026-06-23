@@ -49,67 +49,65 @@ const SERVICES = [
   "Accommodation",
 ];
 
-export const MOCK_REQUESTS = Array.from(
-  { length: 10 },
-  (_, i) => ({
-    id: `req-${i}`,
-    requestNo: `NSX-2026-${String(i + 1).padStart(6, "0")}`,
-    userId: null,
-    serviceId: `service-${i % 5}`,
-    assignedToId: i % 3 === 0 ? `admin-${i}` : null,
-    isGuest: true,
-    guestName: NAMES[i],
-    guestEmail: `user${i}@example.com`,
-    guestPhone: `0170000000${i}`,
-    guestAddress: "Dhaka",
-    guestSource: (["FACEBOOK", "REFERRAL", "WEBSITE"] as const)[i % 3],
-    status: (
-      [
-        "SUBMITTED",
-        "PAYMENT_PENDING",
-        "PAYMENT_VERIFIED",
-        "IN_PROGRESS",
-        "COMPLETED",
-      ] as const
-    )[i % 5],
-    formData: {
-      passportNumber: `P${100000 + i}`,
-    },
-    userNotes: "Need urgent processing",
-    adminNotes: null,
-    quotedPrice: null,
-    finalPrice: null,
-    currency: "BDT",
-    deliveryMessage: null,
-    submittedAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-    dueDate: null,
-    completedAt: null,
-    createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date().toISOString(),
-    service: {
-      id: `service-${i % 5}`,
-      name: SERVICES[i % 5],
-      price: String((i + 1) * 5000),
-      requiresQuotation: false,
-    },
-    assignedTo:
-      i % 3 === 0
-        ? {
-            id: `admin-${i}`,
-            name: "Super Admin",
-          }
-        : null,
-    payment:
-      i % 2 === 0
-        ? {
-            id: `payment-${i}`,
-            status: "VERIFIED",
-            amount: String((i + 1) * 5000),
-            method: "BKASH",
-          }
-        : null,
-  }),
-);
+export const MOCK_REQUESTS = Array.from({ length: 10 }, (_, i) => ({
+  id: `req-${i}`,
+  requestNo: `NSX-2026-${String(i + 1).padStart(6, "0")}`,
+  userId: null,
+  user: null,
+  serviceId: `service-${i % 5}`,
+  assignedToId: i % 3 === 0 ? `admin-${i}` : null,
+  isGuest: true,
+  guestName: NAMES[i],
+  guestEmail: `user${i}@example.com`,
+  guestPhone: `0170000000${i}`,
+  guestAddress: "Dhaka",
+  guestSource: (["FACEBOOK", "REFERRAL", "WEBSITE"] as const)[i % 3],
+  status: (
+    [
+      "SUBMITTED",
+      "PAYMENT_PENDING",
+      "PAYMENT_VERIFIED",
+      "IN_PROGRESS",
+      "COMPLETED",
+    ] as const
+  )[i % 5],
+  formData: {
+    passportNumber: `P${100000 + i}`,
+  },
+  userNotes: "Need urgent processing",
+  adminNotes: null,
+  quotedPrice: null,
+  finalPrice: null,
+  currency: "BDT",
+  deliveryMessage: null,
+  submittedAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+  dueDate: null,
+  completedAt: null,
+  createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+  updatedAt: new Date().toISOString(),
+  service: {
+    id: `service-${i % 5}`,
+    name: SERVICES[i % 5],
+    price: String((i + 1) * 5000),
+    requiresQuotation: false,
+  },
+  assignedTo:
+    i % 3 === 0
+      ? {
+          id: `admin-${i}`,
+          name: "Super Admin",
+        }
+      : null,
+  payment:
+    i % 2 === 0
+      ? {
+          id: `payment-${i}`,
+          status: "VERIFIED",
+          amount: String((i + 1) * 5000),
+          method: "BKASH",
+        }
+      : null,
+}));
 
 export const MOCK_DATA = {
   data: MOCK_REQUESTS,
@@ -127,8 +125,10 @@ export function RequestsPage() {
   const { page, limit, goToPage, changeLimit } = usePagination();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(
+    null,
+  );
   const [deleteTarget, setDeleteTarget] = useState<ServiceRequest | null>(null);
   const [rejectTarget, setRejectTarget] = useState<ServiceRequest | null>(null);
   const debouncedSearch = useDebounce(search);
