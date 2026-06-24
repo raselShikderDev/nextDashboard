@@ -1,6 +1,6 @@
-import { UserDetails } from ".";
-import { PaymentMethod, PaymentStatus } from "./enums.types";
-import { ServiceRequest } from "./request.types";
+import { User } from ".";
+import type { PaymentMethod, PaymentStatus } from "./enums.types";
+import type { ServiceRequest } from "./request.types";
 
 export interface Payment {
   id: string;
@@ -22,7 +22,8 @@ export interface Payment {
   userDetailsId: string | null;
   createdAt: string;
   updatedAt: string;
+
   request?: ServiceRequest;
-  verifiedBy?: UserDetails | null;
-  userDetails?: UserDetails | null;
+  verifiedBy?: User | null;
+  userDetails?: User | null;
 }

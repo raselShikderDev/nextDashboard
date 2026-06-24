@@ -30,20 +30,6 @@ export interface LoginCredentials {
 }
 
 
-export interface Payment {
-  id: string;
-  requestId: string;
-  request?: Request;
-  userId: string;
-  user?: User;
-  amount: number;
-  status: PaymentStatus;
-  method: "credit_card" | "bank_transfer" | "cash" | "online";
-  transactionId?: string;
-  paidAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface Notification {
   id: string;
