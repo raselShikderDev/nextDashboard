@@ -247,7 +247,7 @@ export function RequestsPage() {
         </Select>
       </motion.div>
       <RequestsTable
-        data={displayData?.data}
+        data={displayData?.data as ServiceRequest[]}
         total={displayData?.meta?.total}
         page={page}
         limit={limit}

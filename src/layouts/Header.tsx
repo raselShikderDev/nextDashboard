@@ -46,7 +46,6 @@ export function Header({ onMenuClick }: HeaderProps) {
     navigate("/login");
   };
 
-
   return (
     <header className="sticky top-0 z-40 h-16 border-b bg-background/80 backdrop-blur-xl">
       <div className="flex h-full items-center justify-between px-6">
@@ -63,7 +62,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <div className="hidden md:block">
             <h1 className="text-lg font-semibold tracking-tight">Dashboard</h1>
             <p className="text-xs text-muted-foreground">
-              Welcome back, {user?.userDetails?.name || "User"}
+              Logged in as {user?.userDetails?.name || "User"}
             </p>
           </div>
         </div>

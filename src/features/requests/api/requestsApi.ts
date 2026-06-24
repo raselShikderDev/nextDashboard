@@ -37,16 +37,12 @@ export const requestsApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "Request", id: "LIST" }],
     }),
 
-    updateRequest: builder.mutation<
-      Request,
-      { id: string; body: Partial<Request> }
-    >({
+    updateRequest: builder.mutation<ServiceRequest,   { id: string; body: Partial<ServiceRequest> }>({
       query: ({ id, body }) => ({
         url: `/requests/${id}`,
         method: "PATCH",
         body,
       }),
-      transformResponse: (res: PaginatedResponse<ServiceRequest>) => res.data,
       invalidatesTags: (_r, _e, { id }) => [
         { type: "Request", id },
         { type: "Request", id: "LIST" },
