@@ -11,14 +11,16 @@ import {
   DropdownMenuTrigger,
 } from "../../../components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
-import type { Payment } from "../../../types";
 import { formatCurrency, formatDate, getInitials } from "@/app/helpers/helpers";
+import { Payment } from "@/types/payment.types";
 
 const methodLabels: Record<string, string> = {
-  credit_card: "Credit Card",
-  bank_transfer: "Bank Transfer",
-  cash: "Cash",
-  online: "Online",
+  BKASH: "bKash",
+  NAGAD: "Nagad",
+  ROCKET: "Rocket",
+  DUTCH_BANGLA: "Dutch Bangla",
+  BANK_TRANSFER: "Bank Transfer",
+  CASH: "Cash",
 };
 
 interface PaymentsTableProps {
@@ -29,8 +31,8 @@ interface PaymentsTableProps {
   isLoading: boolean;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
-  onDelete: (p: Payment) => void;
-  onRefund: (p: Payment) => void;
+  onDelete: (payment: Payment) => void;
+  onRefund: (payment: Payment) => void;
 }
 
 export function PaymentsTable({
@@ -50,9 +52,7 @@ export function PaymentsTable({
       header: "Transaction",
       cell: (row) => (
         <div>
-          <p className="text-sm font-mono font-medium">
-            {row.transactionId ?? `TXN-${row.id.slice(-6).toUpperCase()}`}
-          </p>
+          <p className="font-mono text-sm font-medium">{row.transactionId}</p>
           <p className="text-xs text-muted-foreground">
             {formatDate(row.createdAt)}
           </p>
@@ -64,17 +64,25 @@ export function PaymentsTable({
       header: "User",
       cell: (row) => (
         <div className="flex items-center gap-2.5">
-          <Avatar className="w-8 h-8">
-            <AvatarFallback className="text-xs bg-primary/10 text-primary">
-              {row.user ? getInitials(row.user?.userDetails.name) : "?"}
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+              {getInitials(
+                row.userDetails?.userDetails?.name ||
+                  row.userDetails?.userDetails?.name ||
+                  "User",
+              )}
             </AvatarFallback>
           </Avatar>
+
           <div>
             <p className="text-sm font-medium">
-              {row.user?.userDetails.name ?? "Unknown"}
+              {row.userDetails?.userDetails?.name ||
+                row?.request?.guestName ||
+                "Unknown User"}
             </p>
+
             <p className="text-xs text-muted-foreground">
-              {row.user?.email ?? "-"}
+              {row.userDetails?.email || row?.request?.guestEmail || "-"}
             </p>
           </div>
         </div>
@@ -84,8 +92,8 @@ export function PaymentsTable({
       key: "amount",
       header: "Amount",
       cell: (row) => (
-        <span className="font-semibold tabular-nums text-base">
-          {formatCurrency(row.amount)}
+        <span className="font-semibold tabular-nums">
+          {formatCurrency(Number(row.amount))}
         </span>
       ),
     },
@@ -93,7 +101,7 @@ export function PaymentsTable({
       key: "method",
       header: "Method",
       cell: (row) => (
-        <Badge variant="secondary" className="text-xs">
+        <Badge variant="secondary">
           {methodLabels[row.method] ?? row.method}
         </Badge>
       ),
@@ -104,11 +112,11 @@ export function PaymentsTable({
       cell: (row) => <PaymentStatusBadge status={row.status} />,
     },
     {
-      key: "paidAt",
-      header: "Paid At",
+      key: "verifiedAt",
+      header: "Verified",
       cell: (row) => (
         <span className="text-sm text-muted-foreground">
-          {row.paidAt ? formatDate(row.paidAt) : "-"}
+          {row.verifiedAt ? formatDate(row.verifiedAt) : "-"}
         </span>
       ),
     },
@@ -120,37 +128,43 @@ export function PaymentsTable({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="w-4 h-4" />
+              <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
-            {row.status === "paid" && (
-              <DropdownMenuItem onClick={() => onRefund(row)}>
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Refund
-              </DropdownMenuItem>
+            {row.status === "VERIFIED" && (
+              <>
+                <DropdownMenuItem className="hover:cursor-pointer" onClick={() => onRefund(row)}>
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Refund Payment
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+              </>
             )}
-            <DropdownMenuSeparator />
+
             <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
               onClick={() => onDelete(row)}
+              className="text-destructive focus:text-destructive hover:cursor-pointer"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Payment
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
     },
   ];
+
   return (
     <DataTable
       columns={columns}
       data={data}
-      isLoading={isLoading}
       total={total}
       page={page}
       limit={limit}
+      isLoading={isLoading}
       onPageChange={onPageChange}
       onLimitChange={onLimitChange}
       rowKey={(row) => row.id}
