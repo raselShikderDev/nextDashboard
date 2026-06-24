@@ -21,7 +21,6 @@ import { useNavigate } from "react-router-dom";
 import { formatCurrency, formatDate, getInitials } from "@/app/helpers/helpers";
 import { ServiceRequest } from "@/types/request.types";
 
-
 interface RequestsTableProps {
   data: ServiceRequest[];
   total: number;
@@ -137,26 +136,32 @@ export function RequestsTable({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigate(`/requests`)}>
-              <Eye className="w-4 h-4 mr-2" />
+            <DropdownMenuItem
+              className="hover:cursor-pointer"
+              onClick={() => navigate(`/requests`)}
+            >
+              <Eye className="w-4 h-4 mr-2 hover:cursor-pointer" />
               View Details
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(row)}>
-              <Pencil className="w-4 h-4 mr-2" />
+            <DropdownMenuItem
+              className="hover:cursor-pointer"
+              onClick={() => onEdit(row)}
+            >
+              <Pencil className="w-4 h-4 mr-2 " />
               Edit
             </DropdownMenuItem>
             {row?.status === "PENDING" && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="text-green-600 focus:text-green-600"
+                  className="text-green-600 focus:text-green-600 hover:cursor-pointer"
                   onClick={() => onApprove(row)}
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Approve
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive focus:text-destructive hover:cursor-pointer"
                   onClick={() => onReject(row)}
                 >
                   <XCircle className="w-4 h-4 mr-2" />
@@ -166,7 +171,7 @@ export function RequestsTable({
             )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
+              className="text-destructive focus:text-destructive hover:cursor-pointer"
               onClick={() => onDelete(row)}
             >
               <Trash2 className="w-4 h-4 mr-2" />
