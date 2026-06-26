@@ -4,7 +4,10 @@ import type { PaginatedResponse, FilterParams } from "../../../types";
 
 export const requestsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getRequests: builder.query<PaginatedResponse<ServiceRequest[]>, FilterParams>({
+    getRequests: builder.query<
+      PaginatedResponse<ServiceRequest[]>,
+      FilterParams
+    >({
       query: (params = {}) => {
         const qs = new URLSearchParams();
 
@@ -15,11 +18,14 @@ export const requestsApi = baseApi.injectEndpoints({
         });
         return `/requests?${qs.toString()}`;
       },
-     
+
       providesTags: (result) =>
         result
           ? [
-              ...result?.data.map((request) => ({ type: "Request" as const, request })),
+              ...result?.data.map((request) => ({
+                type: "Request" as const,
+                request,
+              })),
               { type: "Request" as const, id: "LIST" },
             ]
           : [{ type: "Request" as const, id: "LIST" }],
@@ -37,7 +43,10 @@ export const requestsApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "Request", id: "LIST" }],
     }),
 
-    updateRequest: builder.mutation<ServiceRequest,   { id: string; body: Partial<ServiceRequest> }>({
+    updateRequest: builder.mutation<
+      ServiceRequest,
+      { id: string; body: Partial<ServiceRequest> }
+    >({
       query: ({ id, body }) => ({
         url: `/request/${id}`,
         method: "PATCH",
@@ -60,7 +69,31 @@ export const requestsApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, id) => [{ type: "Request", id }],
     }),
 
-    cancelRequest: builder.mutation<ServiceRequest, { id: string; notes?: string }>({
+    stratWorkRequest: builder.mutation<ServiceRequest, string>({
+      query: (id) => ({ url: `/requests/start-work/${id}`, method: "PATCH" }),
+      transformResponse: (res: { data: ServiceRequest }) => res.data,
+      invalidatesTags: (_r, _e, id) => [{ type: "Request", id }],
+    }),
+
+    markCompleteRequest: builder.mutation<ServiceRequest, string>({
+      query: (id) => ({
+        url: `/requests/mark-completed/${id}`,
+        method: "PATCH",
+      }),
+      transformResponse: (res: { data: ServiceRequest }) => res.data,
+      invalidatesTags: (_r, _e, id) => [{ type: "Request", id }],
+    }),
+
+    DeliveryRequest: builder.mutation<ServiceRequest, string>({
+      query: (id) => ({ url: `/requests/${id}/deliver`, method: "PATCH" }),
+      transformResponse: (res: { data: ServiceRequest }) => res.data,
+      invalidatesTags: (_r, _e, id) => [{ type: "Request", id }],
+    }),
+
+    cancelRequest: builder.mutation<
+      ServiceRequest,
+      { id: string; notes?: string }
+    >({
       query: ({ id, notes }) => ({
         url: `/requests/cancel/${id}`,
         method: "PATCH",
@@ -81,4 +114,5 @@ export const {
   useDeleteRequestMutation,
   useApproveRequestMutation,
   useCancelRequestMutation,
+  useStratWorkRequestMutation,
 } = requestsApi;

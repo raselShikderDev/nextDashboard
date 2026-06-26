@@ -22,6 +22,7 @@ import {
   useDeleteRequestMutation,
   useApproveRequestMutation,
   useCancelRequestMutation,
+  useStratWorkRequestMutation,
 } from "../api/requestsApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { usePagination } from "../../../hooks/usePagination";
@@ -142,6 +143,7 @@ export function RequestsPage() {
   const [createRequest, { isLoading: isCreating }] = useCreateRequestMutation();
   const [updateRequest, { isLoading: isUpdating }] = useUpdateRequestMutation();
   const [deleteRequest, { isLoading: isDeleting }] = useDeleteRequestMutation();
+  const [startWork, { isLoading: isStartingWork }] = useStratWorkRequestMutation();
   const [approveRequest] = useApproveRequestMutation();
   const [cancelRequest, { isLoading: isRejecting }] = useCancelRequestMutation();
 
@@ -253,11 +255,6 @@ export function RequestsPage() {
         isLoading={isLoading}
         onPageChange={goToPage}
         onLimitChange={changeLimit}
-        onEdit={(req) => {
-          setSelectedRequest(req);
-          setIsFormOpen(true);
-        }}
-        onDelete={setDeleteTarget}
         onApprove={handleApprove}
         onReject={setRejectTarget}
       />
