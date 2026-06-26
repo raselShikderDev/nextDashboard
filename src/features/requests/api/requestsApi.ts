@@ -60,9 +60,9 @@ export const requestsApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, id) => [{ type: "Request", id }],
     }),
 
-    rejectRequest: builder.mutation<ServiceRequest, { id: string; notes?: string }>({
+    cancelRequest: builder.mutation<ServiceRequest, { id: string; notes?: string }>({
       query: ({ id, notes }) => ({
-        url: `/requests/${id}/reject`,
+        url: `/requests/cancel/${id}`,
         method: "PATCH",
         body: { notes },
       }),
@@ -80,5 +80,5 @@ export const {
   useUpdateRequestMutation,
   useDeleteRequestMutation,
   useApproveRequestMutation,
-  useRejectRequestMutation,
+  useCancelRequestMutation,
 } = requestsApi;

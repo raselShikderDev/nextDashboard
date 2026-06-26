@@ -135,7 +135,10 @@ export function PaymentsTable({
           <DropdownMenuContent align="end">
             {row.status === "VERIFIED" && (
               <>
-                <DropdownMenuItem className="hover:cursor-pointer" onClick={() => onRefund(row)}>
+                <DropdownMenuItem
+                  className="hover:cursor-pointer"
+                  onClick={() => onRefund(row)}
+                >
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Refund Payment
                 </DropdownMenuItem>

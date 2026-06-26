@@ -21,7 +21,7 @@ import {
   useUpdateRequestMutation,
   useDeleteRequestMutation,
   useApproveRequestMutation,
-  useRejectRequestMutation,
+  useCancelRequestMutation,
 } from "../api/requestsApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { usePagination } from "../../../hooks/usePagination";
@@ -143,8 +143,7 @@ export function RequestsPage() {
   const [updateRequest, { isLoading: isUpdating }] = useUpdateRequestMutation();
   const [deleteRequest, { isLoading: isDeleting }] = useDeleteRequestMutation();
   const [approveRequest] = useApproveRequestMutation();
-  const [rejectRequest, { isLoading: isRejecting }] =
-    useRejectRequestMutation();
+  const [cancelRequest, { isLoading: isRejecting }] = useCancelRequestMutation();
 
   const handleCreate = async (formData: RequestFormData) => {
     try {
@@ -192,7 +191,7 @@ export function RequestsPage() {
   const handleReject = async () => {
     if (!rejectTarget) return;
     try {
-      await rejectRequest({ id: rejectTarget.id }).unwrap();
+      await cancelRequest({ id: rejectTarget.id }).unwrap();
       // toast({ title: "Request rejected" });
       setRejectTarget(null);
     } catch {
