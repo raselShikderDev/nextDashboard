@@ -39,7 +39,7 @@ export const requestsApi = baseApi.injectEndpoints({
 
     updateRequest: builder.mutation<ServiceRequest,   { id: string; body: Partial<ServiceRequest> }>({
       query: ({ id, body }) => ({
-        url: `/requests/${id}`,
+        url: `/request/${id}`,
         method: "PATCH",
         body,
       }),

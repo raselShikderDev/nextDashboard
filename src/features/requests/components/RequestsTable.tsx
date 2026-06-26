@@ -29,8 +29,6 @@ interface RequestsTableProps {
   isLoading: boolean;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
-  onEdit: (r: ServiceRequest) => void;
-  onDelete: (r: ServiceRequest) => void;
   onApprove: (r: ServiceRequest) => void;
   onReject: (r: ServiceRequest) => void;
 }
@@ -43,8 +41,6 @@ export function RequestsTable({
   isLoading,
   onPageChange,
   onLimitChange,
-  onEdit,
-  onDelete,
   onApprove,
   onReject,
 }: RequestsTableProps) {
@@ -128,58 +124,133 @@ export function RequestsTable({
       key: "actions",
       header: "",
       className: "w-12 text-right",
-      cell: (row) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              className="hover:cursor-pointer"
-              onClick={() => navigate(`/requests`)}
-            >
-              <Eye className="w-4 h-4 mr-2 hover:cursor-pointer" />
-              View Details
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="hover:cursor-pointer"
-              onClick={() => onEdit(row)}
-            >
-              <Pencil className="w-4 h-4 mr-2 " />
-              Edit
-            </DropdownMenuItem>
-            {row?.status === "PENDING" && (
-              <>
-                <DropdownMenuSeparator />
+      cell: (row) => {
+        const canEdit = [
+          "DRAFT",
+          "SUBMITTED",
+          "UNDER_REVIEW",
+          "PAYMENT_PENDING",
+        ].includes(row.status);
+
+        const canApprove = row.status === "SUBMITTED";
+
+        const canVerifyPayment = row.status === "PAYMENT_SUBMITTED";
+
+        const canStartProcessing = row.status === "PAYMENT_VERIFIED";
+
+        const canComplete = [
+          "IN_PROGRESS",
+          "READY_FOR_DELIVERY",
+          "DELIVERED",
+        ].includes(row.status);
+
+        const canReject = [
+          "SUBMITTED",
+          "UNDER_REVIEW",
+          "PAYMENT_SUBMITTED",
+          "PAYMENT_PENDING",
+        ].includes(row.status);
+
+        const canCancel = [
+          "DRAFT",
+          "SUBMITTED",
+          "UNDER_REVIEW",
+          "PAYMENT_PENDING",
+          "PAYMENT_SUBMITTED",
+        ].includes(row.status);
+
+        const canDelete = ["REJECTED", "CANCELLED", "DRAFT"].includes(
+          row.status,
+        );
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" className="w-52">
+              {/* View */}
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate(`/requests/${row.id}`)}
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                View Details
+              </DropdownMenuItem>
+              {/* Start Review */}
+              {canApprove && (
                 <DropdownMenuItem
-                  className="text-green-600 focus:text-green-600 hover:cursor-pointer"
+                  className="text-green-600 focus:text-green-600 cursor-pointer"
                   onClick={() => onApprove(row)}
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Approve
+                  Start Review
                 </DropdownMenuItem>
+              )}
+
+              {/* Verify Payment */}
+              {canVerifyPayment && (
                 <DropdownMenuItem
-                  className="text-destructive focus:text-destructive hover:cursor-pointer"
+                  className="text-green-600 focus:text-green-600 cursor-pointer"
+                  onClick={() => onApprove(row)}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Verify Payment
+                </DropdownMenuItem>
+              )}
+
+              {/* Start Processing */}
+              {canStartProcessing && (
+                <DropdownMenuItem
+                  className="text-blue-600 focus:text-blue-600 cursor-pointer"
+                  onClick={() => onApprove(row)}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Start Processing
+                </DropdownMenuItem>
+              )}
+
+              {/* Complete */}
+              {canComplete && (
+                <DropdownMenuItem
+                  className="text-green-600 focus:text-green-600 cursor-pointer"
+                  onClick={() => onApprove(row)}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Mark Completed
+                </DropdownMenuItem>
+              )}
+
+              {/* Reject */}
+              {canReject && (
+                <DropdownMenuItem
+                  className="text-red-600 focus:text-red-600 cursor-pointer"
                   onClick={() => onReject(row)}
                 >
                   <XCircle className="w-4 h-4 mr-2" />
-                  Reject
+                  Reject Request
                 </DropdownMenuItem>
-              </>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive hover:cursor-pointer"
-              onClick={() => onDelete(row)}
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+              )}
+
+              {/* Cancel */}
+              {canCancel && (
+                <DropdownMenuItem
+                  className="text-orange-600 focus:text-orange-600 cursor-pointer"
+                  onClick={() => onReject(row)}
+                >
+                  <XCircle className="w-4 h-4 mr-2" />
+                  Cancel Request
+                </DropdownMenuItem>
+              )}
+
+             
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
     },
   ];
   return (
