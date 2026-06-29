@@ -96,7 +96,7 @@ export interface RequestTrendData {
 export interface FilterParams {
   page?: number;
   limit?: number;
-  search?: string;
+  searchTerm?: string;
   status?: string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";

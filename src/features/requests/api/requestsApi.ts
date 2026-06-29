@@ -3,19 +3,17 @@ import { baseApi } from "../../../app/baseApi";
 import type { PaginatedResponse, FilterParams } from "../../../types";
 
 export const requestsApi = baseApi.injectEndpoints({
-  endpoints: (builder) => ({
-    getRequests: builder.query<
-      PaginatedResponse<ServiceRequest[]>,
-      FilterParams
-    >({
+  endpoints: (builder) => ({ 
+    getRequests: builder.query< PaginatedResponse<ServiceRequest[]>, FilterParams>({
       query: (params = {}) => {
         const qs = new URLSearchParams();
-
         Object.entries(params).forEach(([k, v]) => {
           if (v !== undefined && v !== "") {
             qs.set(k, String(v));
           }
         });
+        console.log(qs);
+        
         return `/requests?${qs.toString()}`;
       },
 
@@ -43,10 +41,7 @@ export const requestsApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "Request", id: "LIST" }],
     }),
 
-    updateRequest: builder.mutation<
-      ServiceRequest,
-      { id: string; body: Partial<ServiceRequest> }
-    >({
+    updateRequest: builder.mutation< ServiceRequest, { id: string; body: Partial<ServiceRequest> } >({
       query: ({ id, body }) => ({
         url: `/request/${id}`,
         method: "PATCH",

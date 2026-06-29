@@ -28,6 +28,8 @@ import { useDebounce } from "../../../hooks/useDebounce";
 import { usePagination } from "../../../hooks/usePagination";
 import type { RequestFormData } from "../../../lib/validators";
 import { ServiceRequest } from "@/types/request.types";
+import { RequestStatus } from "@/types/enums";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 const NAMES = [
   "Alice Johnson",
@@ -122,6 +124,21 @@ export const MOCK_DATA = {
   },
 };
 
+export const REQUEST_STATUS_OPTIONS = [
+  { value: RequestStatus.DRAFT, label: "Draft" },
+  { value: RequestStatus.SUBMITTED, label: "Submitted" },
+  { value: RequestStatus.UNDER_REVIEW, label: "Under Review" },
+  { value: RequestStatus.PAYMENT_PENDING, label: "Payment Pending" },
+  { value: RequestStatus.PAYMENT_SUBMITTED, label: "Payment Submitted" },
+  { value: RequestStatus.PAYMENT_VERIFIED, label: "Payment Verified" },
+  { value: RequestStatus.IN_PROGRESS, label: "In Progress" },
+  { value: RequestStatus.READY_FOR_DELIVERY, label: "Ready For Delivery" },
+  { value: RequestStatus.DELIVERED, label: "Delivered" },
+  { value: RequestStatus.COMPLETED, label: "Completed" },
+  { value: RequestStatus.REJECTED, label: "Rejected" },
+  { value: RequestStatus.CANCELLED, label: "Cancelled" },
+];
+
 export function RequestsPage() {
   const { page, limit, goToPage, changeLimit } = usePagination();
   const [search, setSearch] = useState("");
@@ -133,19 +150,24 @@ export function RequestsPage() {
   const [deleteTarget, setDeleteTarget] = useState<ServiceRequest | null>(null);
   const [rejectTarget, setRejectTarget] = useState<ServiceRequest | null>(null);
   const debouncedSearch = useDebounce(search);
-
-  const { data, isLoading } = useGetRequestsQuery({
+  const {
+    data,
+    isLoading: isGetRequestLoading,
+    isFetching: isGetRequestFetching,
+  } = useGetRequestsQuery({
     page,
     limit,
-    search: debouncedSearch || undefined,
+    searchTerm: debouncedSearch || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
   });
   const [createRequest, { isLoading: isCreating }] = useCreateRequestMutation();
   const [updateRequest, { isLoading: isUpdating }] = useUpdateRequestMutation();
   const [deleteRequest, { isLoading: isDeleting }] = useDeleteRequestMutation();
-  const [startWork, { isLoading: isStartingWork }] = useStratWorkRequestMutation();
+  const [startWork, { isLoading: isStartingWork }] =
+    useStratWorkRequestMutation();
   const [approveRequest] = useApproveRequestMutation();
-  const [cancelRequest, { isLoading: isRejecting }] = useCancelRequestMutation();
+  const [cancelRequest, { isLoading: isRejecting }] =
+    useCancelRequestMutation();
 
   const handleCreate = async (formData: RequestFormData) => {
     try {
@@ -202,7 +224,7 @@ export function RequestsPage() {
   };
 
   const displayData = data ?? MOCK_DATA;
-  console.log({ displayData });
+  const showLoader = isGetRequestLoading || isGetRequestFetching;
 
   return (
     <PageWrapper>
@@ -238,26 +260,36 @@ export function RequestsPage() {
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="in_progress">In Progress</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem className="hover:cursor-pointer" value="All">
+              All Status
+            </SelectItem>
+            {REQUEST_STATUS_OPTIONS.map((status) => (
+              <SelectItem
+                className="hover:cursor-pointer"
+                key={status.value}
+                value={status.value}
+              >
+                {status.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </motion.div>
-      <RequestsTable
-        data={displayData?.data as ServiceRequest[]}
-        total={displayData?.meta?.total}
-        page={page}
-        limit={limit}
-        isLoading={isLoading}
-        onPageChange={goToPage}
-        onLimitChange={changeLimit}
-        onApprove={handleApprove}
-        onReject={setRejectTarget}
-      />
+      {showLoader ? (
+        <LoadingSpinner />
+      ) : (
+        <RequestsTable
+          data={displayData?.data as ServiceRequest[]}
+          total={displayData?.meta?.total ?? 0}
+          page={page}
+          limit={limit}
+          isLoading={false}
+          onPageChange={goToPage}
+          onLimitChange={changeLimit}
+          onApprove={handleApprove}
+          onReject={setRejectTarget}
+        />
+      )}
       <RequestForm
         open={isFormOpen}
         onOpenChange={(open) => {
