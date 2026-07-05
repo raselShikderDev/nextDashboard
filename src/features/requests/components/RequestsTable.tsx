@@ -31,6 +31,7 @@ interface RequestsTableProps {
   onLimitChange: (limit: number) => void;
   onApprove: (r: ServiceRequest) => void;
   onReject: (r: ServiceRequest) => void;
+  onStartWork: (r: ServiceRequest) => void;
 }
 
 export function RequestsTable({
@@ -43,6 +44,7 @@ export function RequestsTable({
   onLimitChange,
   onApprove,
   onReject,
+  onStartWork
 }: RequestsTableProps) {
   const navigate = useNavigate();
   const columns: Column<ServiceRequest>[] = [
@@ -206,7 +208,7 @@ export function RequestsTable({
               {canStartProcessing && (
                 <DropdownMenuItem
                   className="text-blue-600 focus:text-blue-600 cursor-pointer"
-                  onClick={() => onApprove(row)}
+                  onClick={() => onStartWork(row)}
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Start Processing

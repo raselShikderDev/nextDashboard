@@ -148,6 +148,9 @@ export function RequestsPage() {
     null,
   );
   const [deleteTarget, setDeleteTarget] = useState<ServiceRequest | null>(null);
+  const [startWorkTarget, setStartWorkTarget] = useState<ServiceRequest | null>(
+    null,
+  );
   const [rejectTarget, setRejectTarget] = useState<ServiceRequest | null>(null);
   const debouncedSearch = useDebounce(search);
   const {
@@ -198,6 +201,16 @@ export function RequestsPage() {
       await deleteRequest(deleteTarget.id).unwrap();
       // toast({ title: "Request deleted" });
       setDeleteTarget(null);
+    } catch {
+      // toast({ variant: "destructive", title: "Failed to delete request" });
+    }
+  };
+  const handleStartWork = async () => {
+    if (!startWorkTarget) return;
+    try {
+      await startWork(startWorkTarget.id).unwrap();
+      // toast({ title: "Request deleted" });
+      setStartWorkTarget(null);
     } catch {
       // toast({ variant: "destructive", title: "Failed to delete request" });
     }
@@ -287,6 +300,7 @@ export function RequestsPage() {
           onPageChange={goToPage}
           onLimitChange={changeLimit}
           onApprove={handleApprove}
+          onStartWork={handleStartWork}
           onReject={setRejectTarget}
         />
       )}
