@@ -85,10 +85,7 @@ export const requestsApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, id) => [{ type: "Request", id }],
     }),
 
-    cancelRequest: builder.mutation<
-      ServiceRequest,
-      { id: string; notes?: string }
-    >({
+    cancelRequest: builder.mutation<  ServiceRequest,  { id: string; notes?: string }  >({
       query: ({ id, notes }) => ({
         url: `/requests/cancel/${id}`,
         method: "PATCH",
@@ -110,4 +107,5 @@ export const {
   useApproveRequestMutation,
   useCancelRequestMutation,
   useStratWorkRequestMutation,
+  useMarkCompleteRequestMutation
 } = requestsApi;

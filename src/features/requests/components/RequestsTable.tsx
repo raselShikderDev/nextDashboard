@@ -32,6 +32,7 @@ interface RequestsTableProps {
   onApprove: (r: ServiceRequest) => void;
   onReject: (r: ServiceRequest) => void;
   onStartWork: (r: ServiceRequest) => void;
+  onMarkComplete: (r: ServiceRequest) => void;
 }
 
 export function RequestsTable({
@@ -44,7 +45,8 @@ export function RequestsTable({
   onLimitChange,
   onApprove,
   onReject,
-  onStartWork
+  onStartWork,
+  onMarkComplete,
 }: RequestsTableProps) {
   const navigate = useNavigate();
   const columns: Column<ServiceRequest>[] = [
@@ -140,11 +142,12 @@ export function RequestsTable({
 
         const canStartProcessing = row.status === "PAYMENT_VERIFIED";
 
-        const canComplete = [
-          "IN_PROGRESS",
-          "READY_FOR_DELIVERY",
-          "DELIVERED",
-        ].includes(row.status);
+        const canComplete = row.status === "IN_PROGRESS";
+        // const can Complete = [
+        //   "IN_PROGRESS",
+        //   "READY_FOR_DELIVERY",
+        //   "DELIVERED",
+        // ].includes(row.status);
 
         const canReject = [
           "SUBMITTED",
@@ -215,11 +218,11 @@ export function RequestsTable({
                 </DropdownMenuItem>
               )}
 
-              {/* Complete */}
+              {/* Mark Complete */}
               {canComplete && (
                 <DropdownMenuItem
                   className="text-green-600 focus:text-green-600 cursor-pointer"
-                  onClick={() => onApprove(row)}
+                  onClick={() => onMarkComplete(row)}
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Mark Completed
@@ -247,8 +250,6 @@ export function RequestsTable({
                   Cancel Request
                 </DropdownMenuItem>
               )}
-
-             
             </DropdownMenuContent>
           </DropdownMenu>
         );

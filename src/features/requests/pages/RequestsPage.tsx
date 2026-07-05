@@ -23,6 +23,7 @@ import {
   useApproveRequestMutation,
   useCancelRequestMutation,
   useStratWorkRequestMutation,
+  useMarkCompleteRequestMutation,
 } from "../api/requestsApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { usePagination } from "../../../hooks/usePagination";
@@ -151,6 +152,9 @@ export function RequestsPage() {
   const [startWorkTarget, setStartWorkTarget] = useState<ServiceRequest | null>(
     null,
   );
+  const [markCompleteTarget, setMarkCompleteTarget] = useState<ServiceRequest | null>(
+    null,
+  );
   const [rejectTarget, setRejectTarget] = useState<ServiceRequest | null>(null);
   const debouncedSearch = useDebounce(search);
   const {
@@ -166,11 +170,10 @@ export function RequestsPage() {
   const [createRequest, { isLoading: isCreating }] = useCreateRequestMutation();
   const [updateRequest, { isLoading: isUpdating }] = useUpdateRequestMutation();
   const [deleteRequest, { isLoading: isDeleting }] = useDeleteRequestMutation();
-  const [startWork, { isLoading: isStartingWork }] =
-    useStratWorkRequestMutation();
+  const [startWork, { isLoading: isStartingWork }] = useStratWorkRequestMutation();
+  const [markComplete, { isLoading: isMarkComplete }] = useMarkCompleteRequestMutation();
   const [approveRequest] = useApproveRequestMutation();
-  const [cancelRequest, { isLoading: isRejecting }] =
-    useCancelRequestMutation();
+  const [cancelRequest, { isLoading: isRejecting }] = useCancelRequestMutation();
 
   const handleCreate = async (formData: RequestFormData) => {
     try {
@@ -205,7 +208,22 @@ export function RequestsPage() {
       // toast({ variant: "destructive", title: "Failed to delete request" });
     }
   };
+  
+  const handleMarkComplete = async () => {
+    
+    if (!markCompleteTarget) return;
+    try {
+      await markComplete(markCompleteTarget.id).unwrap();
+      // toast({ title: "Request deleted" });
+      setMarkCompleteTarget(null);
+    } catch {
+      // toast({ variant: "destructive", title: "Failed to delete request" });
+    }
+  };
+
   const handleStartWork = async () => {
+    console.log("working started");
+    
     if (!startWorkTarget) return;
     try {
       await startWork(startWorkTarget.id).unwrap();
@@ -300,7 +318,8 @@ export function RequestsPage() {
           onPageChange={goToPage}
           onLimitChange={changeLimit}
           onApprove={handleApprove}
-          onStartWork={handleStartWork}
+          onStartWork={setStartWorkTarget}
+          onMarkComplete={setMarkCompleteTarget}
           onReject={setRejectTarget}
         />
       )}
@@ -332,6 +351,24 @@ export function RequestsPage() {
         onConfirm={handleReject}
         isLoading={isRejecting}
         confirmLabel="Reject"
+      />
+      <ConfirmDialog
+        open={!!startWorkTarget}
+        onOpenChange={(open) => !open && setStartWorkTarget(null)}
+        title="Start Processing"
+        description={`Are you sure you want to Start Processing "${startWorkTarget?.service?.name}"?`}
+        onConfirm={handleStartWork}
+        isLoading={isStartingWork}
+        confirmLabel="Start Processing"
+      />
+      <ConfirmDialog
+        open={!!markCompleteTarget}
+        onOpenChange={(open) => !open && setStartWorkTarget(null)}
+        title="Mark Complete"
+        description={`Are you sure you want to Complete mark "${markCompleteTarget?.service?.name}"?`}
+        onConfirm={handleMarkComplete}
+        isLoading={isMarkComplete}
+        confirmLabel="Complete"
       />
     </PageWrapper>
   );
