@@ -33,6 +33,7 @@ interface RequestsTableProps {
   onReject: (r: ServiceRequest) => void;
   onStartWork: (r: ServiceRequest) => void;
   onMarkComplete: (r: ServiceRequest) => void;
+  onDelivery: (r: ServiceRequest) => void;
 }
 
 export function RequestsTable({
@@ -47,6 +48,7 @@ export function RequestsTable({
   onReject,
   onStartWork,
   onMarkComplete,
+  onDelivery,
 }: RequestsTableProps) {
   const navigate = useNavigate();
   const columns: Column<ServiceRequest>[] = [
@@ -137,12 +139,10 @@ export function RequestsTable({
         ].includes(row.status);
 
         const canApprove = row.status === "SUBMITTED";
-
         const canVerifyPayment = row.status === "PAYMENT_SUBMITTED";
-
         const canStartProcessing = row.status === "PAYMENT_VERIFIED";
-
         const canComplete = row.status === "IN_PROGRESS";
+        const canDeliver = row.status === "READY_FOR_DELIVERY";
         // const can Complete = [
         //   "IN_PROGRESS",
         //   "READY_FOR_DELIVERY",
@@ -226,6 +226,15 @@ export function RequestsTable({
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Mark Completed
+                </DropdownMenuItem>
+              )}
+              {canDeliver && (
+                <DropdownMenuItem
+                  className="text-green-600 focus:text-green-600 cursor-pointer"
+                  onClick={() => onDelivery(row)}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Make delivery
                 </DropdownMenuItem>
               )}
 

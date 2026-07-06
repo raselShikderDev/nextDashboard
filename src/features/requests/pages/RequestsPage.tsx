@@ -24,6 +24,7 @@ import {
   useCancelRequestMutation,
   useStratWorkRequestMutation,
   useMarkCompleteRequestMutation,
+  useDeliveryRequestMutation,
 } from "../api/requestsApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { usePagination } from "../../../hooks/usePagination";
@@ -152,7 +153,9 @@ export function RequestsPage() {
   const [startWorkTarget, setStartWorkTarget] = useState<ServiceRequest | null>(
     null,
   );
-  const [markCompleteTarget, setMarkCompleteTarget] = useState<ServiceRequest | null>(
+  const [markCompleteTarget, setMarkCompleteTarget] =
+    useState<ServiceRequest | null>(null);
+  const [deliverTarget, setDeliverTarget] = useState<ServiceRequest | null>(
     null,
   );
   const [rejectTarget, setRejectTarget] = useState<ServiceRequest | null>(null);
@@ -170,10 +173,15 @@ export function RequestsPage() {
   const [createRequest, { isLoading: isCreating }] = useCreateRequestMutation();
   const [updateRequest, { isLoading: isUpdating }] = useUpdateRequestMutation();
   const [deleteRequest, { isLoading: isDeleting }] = useDeleteRequestMutation();
-  const [startWork, { isLoading: isStartingWork }] = useStratWorkRequestMutation();
-  const [markComplete, { isLoading: isMarkComplete }] = useMarkCompleteRequestMutation();
+  const [startWork, { isLoading: isStartingWork }] =
+    useStratWorkRequestMutation();
+  const [markComplete, { isLoading: isMarkComplete }] =
+    useMarkCompleteRequestMutation();
+  const [requestDelivery, { isLoading: isRequestDelivering }] =
+    useDeliveryRequestMutation();
   const [approveRequest] = useApproveRequestMutation();
-  const [cancelRequest, { isLoading: isRejecting }] = useCancelRequestMutation();
+  const [cancelRequest, { isLoading: isRejecting }] =
+    useCancelRequestMutation();
 
   const handleCreate = async (formData: RequestFormData) => {
     try {
@@ -208,9 +216,8 @@ export function RequestsPage() {
       // toast({ variant: "destructive", title: "Failed to delete request" });
     }
   };
-  
+
   const handleMarkComplete = async () => {
-    
     if (!markCompleteTarget) return;
     try {
       await markComplete(markCompleteTarget.id).unwrap();
@@ -222,13 +229,22 @@ export function RequestsPage() {
   };
 
   const handleStartWork = async () => {
-    console.log("working started");
-    
     if (!startWorkTarget) return;
     try {
       await startWork(startWorkTarget.id).unwrap();
       // toast({ title: "Request deleted" });
       setStartWorkTarget(null);
+    } catch {
+      // toast({ variant: "destructive", title: "Failed to delete request" });
+    }
+  };
+
+  const handleDelivery = async () => {
+    if (!deliverTarget) return;
+    try {
+      await requestDelivery(deliverTarget.id).unwrap();
+      // toast({ title: "Request deleted" });
+      setDeliverTarget(null);
     } catch {
       // toast({ variant: "destructive", title: "Failed to delete request" });
     }
@@ -321,6 +337,7 @@ export function RequestsPage() {
           onStartWork={setStartWorkTarget}
           onMarkComplete={setMarkCompleteTarget}
           onReject={setRejectTarget}
+          onDelivery={setDeliverTarget}
         />
       )}
       <RequestForm
@@ -369,6 +386,15 @@ export function RequestsPage() {
         onConfirm={handleMarkComplete}
         isLoading={isMarkComplete}
         confirmLabel="Complete"
+      />
+      <ConfirmDialog
+        open={!!deliverTarget}
+        onOpenChange={(open) => !open && setDeliverTarget(null)}
+        title="Make delivery"
+        description={`Are you sure you want to make delivery "${deliverTarget?.service?.name}"?`}
+        onConfirm={handleDelivery}
+        isLoading={isRequestDelivering}
+        confirmLabel="Deliver"
       />
     </PageWrapper>
   );

@@ -107,5 +107,6 @@ export const {
   useApproveRequestMutation,
   useCancelRequestMutation,
   useStratWorkRequestMutation,
-  useMarkCompleteRequestMutation
+  useMarkCompleteRequestMutation,
+  useDeliveryRequestMutation,
 } = requestsApi;
