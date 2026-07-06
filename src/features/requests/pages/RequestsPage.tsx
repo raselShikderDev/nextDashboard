@@ -32,6 +32,7 @@ import type { RequestFormData } from "../../../lib/validators";
 import { ServiceRequest } from "@/types/request.types";
 import { RequestStatus } from "@/types/enums";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { RequestDetailsModal } from "../components/RequestDetailsModal";
 
 const NAMES = [
   "Alice Johnson",
@@ -150,6 +151,7 @@ export function RequestsPage() {
     null,
   );
   const [deleteTarget, setDeleteTarget] = useState<ServiceRequest | null>(null);
+  const [viewTarget, setViewTarget] = useState<ServiceRequest | null>(null);
   const [startWorkTarget, setStartWorkTarget] = useState<ServiceRequest | null>(
     null,
   );
@@ -338,6 +340,7 @@ export function RequestsPage() {
           onMarkComplete={setMarkCompleteTarget}
           onReject={setRejectTarget}
           onDelivery={setDeliverTarget}
+          onView={setViewTarget}
         />
       )}
       <RequestForm
@@ -395,6 +398,11 @@ export function RequestsPage() {
         onConfirm={handleDelivery}
         isLoading={isRequestDelivering}
         confirmLabel="Deliver"
+      />
+      <RequestDetailsModal
+        request={viewTarget}
+        open={!!viewTarget}
+        onOpenChange={(open) => !open && setViewTarget(null)}
       />
     </PageWrapper>
   );

@@ -34,6 +34,7 @@ interface RequestsTableProps {
   onStartWork: (r: ServiceRequest) => void;
   onMarkComplete: (r: ServiceRequest) => void;
   onDelivery: (r: ServiceRequest) => void;
+  onView: (r: ServiceRequest) => void;
 }
 
 export function RequestsTable({
@@ -49,6 +50,7 @@ export function RequestsTable({
   onStartWork,
   onMarkComplete,
   onDelivery,
+  onView,
 }: RequestsTableProps) {
   const navigate = useNavigate();
   const columns: Column<ServiceRequest>[] = [
@@ -180,7 +182,7 @@ export function RequestsTable({
               {/* View */}
               <DropdownMenuItem
                 className="cursor-pointer"
-                onClick={() => navigate(`/requests/${row.id}`)}
+                onClick={() => onView(row)}
               >
                 <Eye className="w-4 h-4 mr-2" />
                 View Details
