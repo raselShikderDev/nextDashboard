@@ -19,7 +19,7 @@ import {
   useGetRequestsQuery,
   useCreateRequestMutation,
   useUpdateRequestMutation,
-  useDeleteRequestMutation,
+  useClaimRequestMutation,
   useApproveRequestMutation,
   useCancelRequestMutation,
   useStratWorkRequestMutation,
@@ -150,7 +150,7 @@ export function RequestsPage() {
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(
     null,
   );
-  const [deleteTarget, setDeleteTarget] = useState<ServiceRequest | null>(null);
+  const [claimTarget, setClaimTarget] = useState<ServiceRequest | null>(null);
   const [viewTarget, setViewTarget] = useState<ServiceRequest | null>(null);
   const [startWorkTarget, setStartWorkTarget] = useState<ServiceRequest | null>(
     null,
@@ -174,7 +174,7 @@ export function RequestsPage() {
   });
   const [createRequest, { isLoading: isCreating }] = useCreateRequestMutation();
   const [updateRequest, { isLoading: isUpdating }] = useUpdateRequestMutation();
-  const [deleteRequest, { isLoading: isDeleting }] = useDeleteRequestMutation();
+  const [claimRequest, { isLoading: isClaiming }] = useClaimRequestMutation();
   const [startWork, { isLoading: isStartingWork }] =
     useStratWorkRequestMutation();
   const [markComplete, { isLoading: isMarkComplete }] =
@@ -208,12 +208,12 @@ export function RequestsPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
+  const handleClaim = async () => {
+    if (!claimTarget) return;
     try {
-      await deleteRequest(deleteTarget.id).unwrap();
+      await claimRequest(claimTarget.id).unwrap();
       // toast({ title: "Request deleted" });
-      setDeleteTarget(null);
+      setClaimTarget(null);
     } catch {
       // toast({ variant: "destructive", title: "Failed to delete request" });
     }
@@ -341,6 +341,7 @@ export function RequestsPage() {
           onReject={setRejectTarget}
           onDelivery={setDeliverTarget}
           onView={setViewTarget}
+          onClaim={setClaimTarget}
         />
       )}
       <RequestForm
@@ -355,13 +356,13 @@ export function RequestsPage() {
         mode={selectedRequest ? "edit" : "create"}
       />
       <ConfirmDialog
-        open={!!deleteTarget}
-        onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete Request"
-        description={`Are you sure you want to delete "${deleteTarget?.service?.name}"?`}
-        onConfirm={handleDelete}
-        isLoading={isDeleting}
-        confirmLabel="Delete"
+        open={!!claimTarget}
+        onOpenChange={(open) => !open && setClaimTarget(null)}
+        title="Claim Request"
+        description={`Are you sure you want to claim "${claimTarget?.service?.name}"?`}
+        onConfirm={handleClaim}
+        isLoading={isClaiming}
+        confirmLabel="Claim"
       />
       <ConfirmDialog
         open={!!rejectTarget}

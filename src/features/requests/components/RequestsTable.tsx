@@ -35,6 +35,7 @@ interface RequestsTableProps {
   onMarkComplete: (r: ServiceRequest) => void;
   onDelivery: (r: ServiceRequest) => void;
   onView: (r: ServiceRequest) => void;
+  onClaim: (r: ServiceRequest) => void;
 }
 
 export function RequestsTable({
@@ -51,6 +52,7 @@ export function RequestsTable({
   onMarkComplete,
   onDelivery,
   onView,
+  onClaim,
 }: RequestsTableProps) {
   const navigate = useNavigate();
   const columns: Column<ServiceRequest>[] = [
@@ -166,9 +168,9 @@ export function RequestsTable({
           "PAYMENT_SUBMITTED",
         ].includes(row.status);
 
-        const canDelete = ["REJECTED", "CANCELLED", "DRAFT"].includes(
-          row.status,
-        );
+        // const canDelete = ["REJECTED", "CANCELLED", "DRAFT"].includes(
+        //   row.status,
+        // );
 
         return (
           <DropdownMenu>
@@ -213,7 +215,7 @@ export function RequestsTable({
               {canStartProcessing && (
                 <DropdownMenuItem
                   className="text-blue-600 focus:text-blue-600 cursor-pointer"
-                  onClick={() => onStartWork(row)}
+                  onClick={() => onClaim(row)}
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Start Processing
@@ -240,14 +242,14 @@ export function RequestsTable({
                 </DropdownMenuItem>
               )}
 
-              {/* Reject */}
-              {canReject && (
+              {/* Claim */}
+              {canStartProcessing && (
                 <DropdownMenuItem
-                  className="text-red-600 focus:text-red-600 cursor-pointer"
-                  onClick={() => onReject(row)}
+                  className="text-green-600 focus:text-green-600 cursor-pointer"
+                  onClick={() => onClaim(row)}
                 >
                   <XCircle className="w-4 h-4 mr-2" />
-                  Reject Request
+                  Claim Request
                 </DropdownMenuItem>
               )}
 
