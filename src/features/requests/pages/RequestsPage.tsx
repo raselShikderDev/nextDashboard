@@ -33,6 +33,7 @@ import { ServiceRequest } from "@/types/request.types";
 import { RequestStatus } from "@/types/enums";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { RequestDetailsModal } from "../components/RequestDetailsModal";
+import { useGetAllServicesQuery } from "@/features/services/api/servicesApi";
 
 const NAMES = [
   "Alice Johnson",
@@ -172,6 +173,8 @@ export function RequestsPage() {
     searchTerm: debouncedSearch || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
   });
+   const {data:serviceData, isLoading: isGetServiceLoading,isFetching: isGetServiceFetching,} = useGetAllServicesQuery({});
+  
   const [createRequest, { isLoading: isCreating }] = useCreateRequestMutation();
   const [updateRequest, { isLoading: isUpdating }] = useUpdateRequestMutation();
   const [claimRequest, { isLoading: isClaiming }] = useClaimRequestMutation();
@@ -186,6 +189,8 @@ export function RequestsPage() {
     useCancelRequestMutation();
 
   const handleCreate = async (formData: RequestFormData) => {
+    console.log({formData});
+    
     try {
       await createRequest(formData).unwrap();
       // toast({ title: "Request created successfully" });

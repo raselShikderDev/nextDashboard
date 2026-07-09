@@ -1,16 +1,29 @@
+import { Service } from "@/types/service.types";
 import { baseApi } from "../../../app/baseApi";
-import type { Service, PaginatedResponse, FilterParams } from "../../../types";
+import type { PaginatedResponse, FilterParams } from "../../../types";
 
 export const servicesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getServices: builder.query<PaginatedResponse<Service>, FilterParams>({
+    getAllServices: builder.query<PaginatedResponse<Service>, FilterParams>({
       query: (params = {}) => {
         const qs = new URLSearchParams();
-        Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== "") qs.set(k, String(v)); });
+        Object.entries(params).forEach(([k, v]) => {
+          if (v !== undefined && v !== "") qs.set(k, String(v));
+        });
         return `/services?${qs.toString()}`;
       },
-      transformResponse: (res: { data: PaginatedResponse<Service> }) => res.data,
-      providesTags: (result) => result ? [...result.data.map(({ id }) => ({ type: "Service" as const, id })), { type: "Service", id: "LIST" }] : [{ type: "Service", id: "LIST" }],
+      transformResponse: (res: { data: PaginatedResponse<Service> }) =>
+        res.data,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "Service" as const,
+                id,
+              })),
+              { type: "Service", id: "LIST" },
+            ]
+          : [{ type: "Service", id: "LIST" }],
     }),
     getServiceById: builder.query<Service, string>({
       query: (id) => `/services/${id}`,
@@ -22,8 +35,15 @@ export const servicesApi = baseApi.injectEndpoints({
       transformResponse: (res: { data: Service }) => res.data,
       invalidatesTags: [{ type: "Service", id: "LIST" }],
     }),
-    updateService: builder.mutation<Service, { id: string; body: Partial<Service> }>({
-      query: ({ id, body }) => ({ url: `/services/${id}`, method: "PATCH", body }),
+    updateService: builder.mutation<
+      Service,
+      { id: string; body: Partial<Service> }
+    >({
+      query: ({ id, body }) => ({
+        url: `/services/${id}`,
+        method: "PATCH",
+        body,
+      }),
       transformResponse: (res: { data: Service }) => res.data,
       invalidatesTags: (_r, _e, { id }) => [{ type: "Service", id }],
     }),
@@ -32,7 +52,10 @@ export const servicesApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "Service", id: "LIST" }],
     }),
     toggleServiceStatus: builder.mutation<Service, string>({
-      query: (id) => ({ url: `/services/${id}/toggle-status`, method: "PATCH" }),
+      query: (id) => ({
+        url: `/services/${id}/toggle-status`,
+        method: "PATCH",
+      }),
       transformResponse: (res: { data: Service }) => res.data,
       invalidatesTags: (_r, _e, id) => [{ type: "Service", id }],
     }),
@@ -40,4 +63,11 @@ export const servicesApi = baseApi.injectEndpoints({
   overrideExisting: false,
 });
 
-export const { useGetServicesQuery, useGetServiceByIdQuery, useCreateServiceMutation, useUpdateServiceMutation, useDeleteServiceMutation, useToggleServiceStatusMutation } = servicesApi;
+export const {
+  useGetAllServicesQuery,
+  useGetServiceByIdQuery,
+  useCreateServiceMutation,
+  useUpdateServiceMutation,
+  useDeleteServiceMutation,
+  useToggleServiceStatusMutation,
+} = servicesApi;

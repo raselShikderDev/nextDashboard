@@ -22,6 +22,7 @@ import {
 } from "../../../components/ui/dialog";
 import { requestSchema, type RequestFormData } from "../../../lib/validators";
 import { ServiceRequest } from "@/types/request.types";
+import { useGetAllServicesQuery } from "@/features/services/api/servicesApi";
 
 const MOCK_SERVICES = [
   { id: "svc-1", name: "APS Certificate" },
@@ -48,6 +49,8 @@ export function RequestForm({
   isLoading,
   mode = "create",
 }: RequestFormProps) {
+
+ const {data, isLoading: isGetRequestLoading,isFetching: isGetRequestFetching,} = useGetAllServicesQuery({});
   const {
     register,
     handleSubmit,
@@ -100,28 +103,21 @@ export function RequestForm({
       reset();
     }
   };
+console.log({data});
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {mode === "create"
-              ? "Create Request"
-              : "Update Request"}
+            {mode === "create" ? "Create Request" : "Update Request"}
           </DialogTitle>
         </DialogHeader>
 
-        <form
-          onSubmit={handleSubmit(handleFormSubmit)}
-          className="space-y-4"
-        >
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label>Guest Name</Label>
-            <Input
-              placeholder="Enter guest name"
-              {...register("guestName")}
-            />
+            <Input placeholder="Enter guest name" {...register("guestName")} />
             {errors.guestName && (
               <p className="text-xs text-destructive">
                 {errors.guestName.message}
@@ -158,10 +154,7 @@ export function RequestForm({
 
           <div className="space-y-2">
             <Label>Address</Label>
-            <Input
-              placeholder="Enter address"
-              {...register("guestAddress")}
-            />
+            <Input placeholder="Enter address" {...register("guestAddress")} />
             {errors.guestAddress && (
               <p className="text-xs text-destructive">
                 {errors.guestAddress.message}
@@ -186,10 +179,7 @@ export function RequestForm({
 
               <SelectContent>
                 {MOCK_SERVICES.map((service) => (
-                  <SelectItem
-                    key={service.id}
-                    value={service.id}
-                  >
+                  <SelectItem key={service.id} value={service.id}>
                     {service.name}
                   </SelectItem>
                 ))}
@@ -225,18 +215,11 @@ export function RequestForm({
 
             <Button
               type="submit"
-              disabled={
-                isLoading ||
-                (mode === "edit" && !isDirty)
-              }
+              disabled={isLoading || (mode === "edit" && !isDirty)}
             >
-              {isLoading && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 
-              {mode === "create"
-                ? "Create Request"
-                : "Update Request"}
+              {mode === "create" ? "Create Request" : "Update Request"}
             </Button>
           </DialogFooter>
         </form>

@@ -37,15 +37,12 @@ export const requestsApi = baseApi.injectEndpoints({
     }),
 
     createRequest: builder.mutation<ServiceRequest, Partial<ServiceRequest>>({
-      query: (body) => ({ url: "/requests", method: "POST", body }),
+      query: (body) => ({ url: "/requests/create", method: "POST", body }),
       transformResponse: (res: { data: ServiceRequest }) => res.data,
       invalidatesTags: [{ type: "Request", id: "LIST" }],
     }),
 
-    updateRequest: builder.mutation<
-      ServiceRequest,
-      { id: string; body: Partial<ServiceRequest> }
-    >({
+    updateRequest: builder.mutation<  ServiceRequest, { id: string; body: Partial<ServiceRequest> }>({
       query: ({ id, body }) => ({
         url: `/requests/${id}`,
         method: "PATCH",
