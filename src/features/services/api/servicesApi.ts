@@ -12,8 +12,11 @@ export const servicesApi = baseApi.injectEndpoints({
         });
         return `/services?${qs.toString()}`;
       },
-      transformResponse: (res: { data: PaginatedResponse<Service> }) =>
-        res.data,
+      transformResponse: (res: { data: PaginatedResponse<Service> }) => {
+        console.log({ data: res?.data });
+
+        return res.data;
+      },
       providesTags: (result) =>
         result
           ? [
@@ -25,32 +28,27 @@ export const servicesApi = baseApi.injectEndpoints({
             ]
           : [{ type: "Service", id: "LIST" }],
     }),
-
-    createServiceCategory: builder.query<PaginatedResponse<ServiceCategory>, Partial<ServiceCategory> >({
+    createServiceCategory: builder.mutation<
+      ServiceCategory,
+      Partial<ServiceCategory>
+    >({
       query: (body) => ({
         url: `/services/category-create`,
         method: "POST",
         body,
       }),
-      transformResponse: (res: { data: PaginatedResponse<ServiceCategory> }) =>
-        res.data,
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.data.map(({ id }) => ({
-                type: "ServiceCategory" as const,
-                id,
-              })),
-              { type: "ServiceCategory", id: "LIST" },
-            ]
-          : [{ type: "ServiceCategory", id: "LIST" }],
+      transformResponse: (res: { data: ServiceCategory }) => res.data,
+      invalidatesTags: [{ type: "ServiceCategory", id: "LIST" }],
     }),
 
-    getServiceCategory: builder.query<Service, string>({
-      query: () => `/services/service-category`,
-      transformResponse: (res: { data: Service }) => res.data,
-      providesTags: (_r, _e, id) => [{ type: "ServiceCategory", id }],
+    getServiceCategories: builder.query<ServiceCategory[], void>({
+      query: () => ({ url: `/services/service-category`, method: "GET" }),
+      transformResponse: (res: { data: ServiceCategory[] }) => {
+        return res.data;
+      },
+      providesTags: [{ type: "ServiceCategory", id: "LIST" }],
     }),
+
     getServiceById: builder.query<Service, string>({
       query: (id) => `/services/${id}`,
       transformResponse: (res: { data: Service }) => res.data,
@@ -63,7 +61,10 @@ export const servicesApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "Service", id: "LIST" }],
     }),
 
-    updateService: builder.mutation< Service,{ id: string; body: Partial<Service> }>({
+    updateService: builder.mutation<
+      Service,
+      { id: string; body: Partial<Service> }
+    >({
       query: ({ id, body }) => ({
         url: `/services/${id}`,
         method: "PATCH",
@@ -102,6 +103,7 @@ export const {
   useCreateServiceMutation,
   useUpdateServiceMutation,
   useDeleteServiceMutation,
-  useGetServiceCategoryQuery,
+  useGetServiceCategoriesQuery, // FIX 3: updated export name
+  useCreateServiceCategoryMutation, // FIX 3: updated export name
   useToggleServiceStatusMutation,
 } = servicesApi;

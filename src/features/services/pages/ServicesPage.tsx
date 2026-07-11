@@ -20,13 +20,13 @@ import {
   useUpdateServiceMutation,
   useDeleteServiceMutation,
   useToggleServiceStatusMutation,
-  useGetServiceCategoryQuery,
+  useGetServiceCategoriesQuery,
 } from "../api/servicesApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useToast } from "../../../hooks/useToast";
 import type { ServiceFormData } from "../../../lib/validators";
-import { Service } from "@/types/service.types";
-import { usePagination } from "../../../hooks/usePagination"; // FIX 2: Missing import
+import { Service, ServiceCategory } from "@/types/service.types";
+import { usePagination } from "../../../hooks/usePagination";
 import { ServiceCard } from "../components/ServicesGrid";
 
 const MOCK_SERVICES: Service[] = Array.from({ length: 9 }, (_, i) => ({
@@ -71,7 +71,7 @@ const MOCK_SERVICES: Service[] = Array.from({ length: 9 }, (_, i) => ({
 
 export function ServicesPage() {
   const { toast } = useToast();
-  const { page, limit } = usePagination(); // FIX 2: Add pagination hook
+  const { page, limit } = usePagination();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -80,23 +80,30 @@ export function ServicesPage() {
 
   const debouncedSearch = useDebounce(search);
   const {
-    data,
+    data: serviceData,
     isLoading: isGetServiceLoading,
     isFetching: isGetServiceFetching,
   } = useGetAllServicesQuery({
-    page,    // FIX 2: Now defined
-    limit,   // FIX 2: Now defined
+    page,
+    limit,
     searchTerm: debouncedSearch || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
   });
+
+  const {
+    data: serviceCategories,
+    isLoading: isGetServiceCategoryLoading,
+  } = useGetServiceCategoriesQuery();
+
   const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
   const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
   const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();
   const [toggleStatus] = useToggleServiceStatusMutation();
-  const {data:Servicecatagories, isLoading: isGetServiceCategoryLoading, isFetching: isGetServiceCategoryFetching,  } = useGetAllServicesQuery({});
+
+  console.log({ serviceData, serviceCategories });
+
   const handleCreate = async (formData: ServiceFormData) => {
     try {
-      // FIX 3 & 4: Convert price to string before sending
       await createService({
         ...formData,
         price: String(formData.price),
@@ -108,13 +115,9 @@ export function ServicesPage() {
     }
   };
 
-  console.log({Servicecatagories});
-  
-
   const handleEdit = async (formData: ServiceFormData) => {
     if (!selectedService) return;
     try {
-      // FIX 3 & 4: Convert price to string before sending
       await updateService({
         id: selectedService.id,
         body: {
@@ -155,8 +158,9 @@ export function ServicesPage() {
     }
   };
 
-  const allServices = data?.data ?? MOCK_SERVICES;
-  const filteredServices = allServices.filter((svc: Service) => { // FIX 6: Add type annotation
+  const allServices = serviceData?.data ?? MOCK_SERVICES;
+
+  const filteredServices = allServices.filter((svc: Service) => {
     const matchesSearch =
       !debouncedSearch ||
       svc.name.toLowerCase().includes(debouncedSearch.toLowerCase());
@@ -166,6 +170,17 @@ export function ServicesPage() {
       (statusFilter === "inactive" && !svc.isActive);
     return matchesSearch && matchesStatus;
   });
+
+  // Show loading state
+  if (isGetServiceLoading) {
+    return (
+      <PageWrapper>
+        <div className="flex h-96 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper>
@@ -213,7 +228,7 @@ export function ServicesPage() {
           <ServiceCard
             key={service.id}
             service={service}
-            onEdit={(svc: Service) => { 
+            onEdit={(svc: Service) => {
               setSelectedService(svc);
               setIsFormOpen(true);
             }}
