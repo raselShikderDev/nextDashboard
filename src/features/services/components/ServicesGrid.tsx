@@ -1,137 +1,313 @@
+// features/services/components/ServiceCard.tsx
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  MoreHorizontal,
   Pencil,
   Trash2,
-  ToggleLeft,
-  ToggleRight,
-  DollarSign,
+  Power,
+  PowerOff,
+  CheckCircle2,
+  Clock,
   Tag,
+  Layers,
+  FileText,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
-import { motion } from "framer-motion";
-import { Button } from "../../../components/ui/button";
-import { Badge } from "../../../components/ui/badge";
-import type { Service } from "../../../types";
-import { EmptyState } from "../../../components/EmptyState";
-import { formatCurrency } from "@/app/helpers/helpers";
-import { cn } from "@/lib/utils";
+import { Service } from "@/types/service.types";
 
-const statusConfig = {
-  active:
-    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200",
-  inactive:
-    "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-gray-200",
-  deprecated:
-    "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200",
-};
-
-interface ServicesGridProps {
-  data: Service[];
-  isLoading: boolean;
-  onEdit: (s: Service) => void;
-  onDelete: (s: Service) => void;
-  onToggleStatus: (s: Service) => void;
+interface ServiceCardProps {
+  service: Service;
+  onEdit?: (service: Service) => void;
+  onDelete?: (service: Service) => void;
+  onToggleStatus?: (service: Service) => void;
 }
 
-export function ServicesGrid({
-  data,
-  isLoading,
+export function ServiceCard({
+  service,
   onEdit,
   onDelete,
   onToggleStatus,
-}: ServicesGridProps) {
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-card border border-border rounded-xl p-5 animate-pulse"
-          >
-            <div className="w-12 h-12 bg-muted rounded-xl mb-4" />
-            <div className="h-5 bg-muted rounded w-3/4 mb-2" />
-            <div className="h-4 bg-muted rounded w-full mb-4" />
-            <div className="h-4 bg-muted rounded w-1/2" />
-          </div>
-        ))}
-      </div>
-    );
-  }
+}: ServiceCardProps) {
+  const [showDetails, setShowDetails] = useState(false);
+  const [showDeliverables, setShowDeliverables] = useState(false);
 
-  if (data.length === 0)
-    return (
-      <EmptyState
-        title="No services found"
-        description="No services match your current filters."
-      />
-    );
+  const isActive = service.isActive;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {data.map((service, i) => (
-        <motion.div
-          key={service.id}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: i * 0.05 }}
-          className="bg-card border border-border rounded-xl p-5 hover:shadow-md transition-all group"
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl">
-              {service.icon ?? "📦"}
+    <>
+      <Card className="group flex flex-col transition-all duration-200 hover:border-border/80 hover:shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="truncate text-sm font-semibold leading-tight">
+                  {service.name}
+                </h3>
+                {service.requiresQuotation && (
+                  <Badge variant="outline" className="h-5 text-[10px] font-medium">
+                    Quote
+                  </Badge>
+                )}
+              </div>
+              {service.category && (
+                <p className="text-xs text-muted-foreground">
+                  {service.category.name}
+                </p>
+              )}
             </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowDetails(true)}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  View details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onEdit?.(service)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onToggleStatus?.(service)}>
+                  {isActive ? (
+                    <>
+                      <PowerOff className="mr-2 h-4 w-4" />
+                      Deactivate
+                    </>
+                  ) : (
+                    <>
+                      <Power className="mr-2 h-4 w-4" />
+                      Activate
+                    </>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDelete?.(service)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardHeader>
+
+        <CardContent className="flex flex-1 flex-col gap-3 pb-4">
+          {/* Price & Status */}
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold tabular-nums">
+              {service.currency} {service.price}
+            </span>
             <Badge
-              variant="outline"
-              className={cn("text-xs capitalize", statusConfig[service.status])}
+              variant={isActive ? "default" : "secondary"}
+              className={cn(
+                "text-xs",
+                isActive &&
+                  "bg-emerald-50 text-emerald-700 hover:bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-400"
+              )}
             >
-              {service.status}
+              {isActive ? "Active" : "Inactive"}
             </Badge>
           </div>
-          <h3 className="font-semibold text-base mb-1">{service.name}</h3>
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-            {service.description}
-          </p>
-          <div className="flex items-center gap-3 mb-4 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <DollarSign className="w-3.5 h-3.5" />
-              {formatCurrency(service.price)}
-            </span>
-            <span className="flex items-center gap-1">
-              <Tag className="w-3.5 h-3.5" />
-              {service.category}
-            </span>
-          </div>
-          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={() => onEdit(service)}
-            >
-              <Pencil className="w-3.5 h-3.5 mr-1" />
-              Edit
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onToggleStatus(service)}
-              title={service.status === "active" ? "Deactivate" : "Activate"}
-            >
-              {service.status === "active" ? (
-                <ToggleRight className="w-4 h-4 text-green-600" />
-              ) : (
-                <ToggleLeft className="w-4 h-4 text-muted-foreground" />
+
+          {/* Description */}
+          {service.description && (
+            <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+              {service.description}
+            </p>
+          )}
+
+          {/* Turnaround */}
+          {service.turnaround && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              <span>{service.turnaround}</span>
+            </div>
+          )}
+
+          {/* Features */}
+          {service.features.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+                <Tag className="h-3.5 w-3.5" />
+                Features
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {service.features.map((f, i) => (
+                  <Badge
+                    key={i}
+                    variant="secondary"
+                    className="h-5 text-[10px] font-normal"
+                  >
+                    {f}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Deliverables */}
+          {service.deliverables.length > 0 && (
+            <div className="space-y-1.5 border-t border-border/50 pt-2">
+              <button
+                onClick={() => setShowDeliverables(!showDeliverables)}
+                className="flex w-full items-center justify-between text-xs font-medium text-foreground transition-colors hover:text-foreground/80"
+              >
+                <span className="flex items-center gap-1.5">
+                  <Layers className="h-3.5 w-3.5" />
+                  Deliverables
+                </span>
+                {showDeliverables ? (
+                  <ChevronUp className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                )}
+              </button>
+              {showDeliverables && (
+                <ul className="space-y-1">
+                  {service.deliverables.map((d, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-1.5 text-xs text-muted-foreground"
+                    >
+                      <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500" />
+                      <span>{d}</span>
+                    </li>
+                  ))}
+                </ul>
               )}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-destructive hover:text-destructive"
-              onClick={() => onDelete(service)}
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Details Modal */}
+      <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <FileText className="h-5 w-5 text-muted-foreground" />
+              {service.name}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-5">
+            <div className="flex items-center justify-between">
+              <span className="text-2xl font-bold tabular-nums">
+                {service.currency} {service.price}
+              </span>
+              <Badge
+                variant={isActive ? "default" : "secondary"}
+                className={cn(
+                  isActive &&
+                    "bg-emerald-50 text-emerald-700 hover:bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-400"
+                )}
+              >
+                {isActive ? "Active" : "Inactive"}
+              </Badge>
+            </div>
+
+            {service.category && (
+              <p className="text-sm text-muted-foreground">
+                Category:{" "}
+                <span className="font-medium text-foreground">
+                  {service.category.name}
+                </span>
+              </p>
+            )}
+
+            {service.description && (
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {service.description}
+              </p>
+            )}
+
+            {service.turnaround && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                Turnaround:{" "}
+                <span className="font-medium text-foreground">
+                  {service.turnaround}
+                </span>
+              </div>
+            )}
+
+            {service.features.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Features</p>
+                <div className="flex flex-wrap gap-2">
+                  {service.features.map((f, i) => (
+                    <Badge key={i} variant="secondary" className="font-normal">
+                      {f}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {service.deliverables.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Deliverables</p>
+                <ul className="space-y-1.5">
+                  {service.deliverables.map((d, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-sm text-muted-foreground"
+                    >
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                      {d}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {service.formSchema && Object.keys(service.formSchema).length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Form schema</p>
+                <div className="rounded-md bg-muted/50 p-3">
+                  <pre className="overflow-x-auto text-xs text-muted-foreground">
+                    {JSON.stringify(service.formSchema, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
+              <span>Sort order: {service.sortOrder}</span>
+              <span>
+                Created{" "}
+                {new Date(service.createdAt).toLocaleDateString("en-GB")}
+              </span>
+            </div>
           </div>
-        </motion.div>
-      ))}
-    </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

@@ -25,16 +25,19 @@ export const servicesApi = baseApi.injectEndpoints({
             ]
           : [{ type: "Service", id: "LIST" }],
     }),
+
     getServiceById: builder.query<Service, string>({
       query: (id) => `/services/${id}`,
       transformResponse: (res: { data: Service }) => res.data,
       providesTags: (_r, _e, id) => [{ type: "Service", id }],
     }),
+
     createService: builder.mutation<Service, Partial<Service>>({
       query: (body) => ({ url: "/services", method: "POST", body }),
       transformResponse: (res: { data: Service }) => res.data,
       invalidatesTags: [{ type: "Service", id: "LIST" }],
     }),
+
     updateService: builder.mutation<
       Service,
       { id: string; body: Partial<Service> }
@@ -45,19 +48,29 @@ export const servicesApi = baseApi.injectEndpoints({
         body,
       }),
       transformResponse: (res: { data: Service }) => res.data,
-      invalidatesTags: (_r, _e, { id }) => [{ type: "Service", id }],
+      // FIX: invalidate both the item AND the list
+      invalidatesTags: (_r, _e, { id }) => [
+        { type: "Service", id },
+        { type: "Service", id: "LIST" },
+      ],
     }),
+
     deleteService: builder.mutation<void, string>({
       query: (id) => ({ url: `/services/${id}`, method: "DELETE" }),
       invalidatesTags: [{ type: "Service", id: "LIST" }],
     }),
+
     toggleServiceStatus: builder.mutation<Service, string>({
       query: (id) => ({
         url: `/services/${id}/toggle-status`,
         method: "PATCH",
       }),
       transformResponse: (res: { data: Service }) => res.data,
-      invalidatesTags: (_r, _e, id) => [{ type: "Service", id }],
+      // FIX: invalidate both the item AND the list
+      invalidatesTags: (_r, _e, id) => [
+        { type: "Service", id },
+        { type: "Service", id: "LIST" },
+      ],
     }),
   }),
   overrideExisting: false,
