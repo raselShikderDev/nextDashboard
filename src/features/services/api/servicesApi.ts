@@ -1,4 +1,4 @@
-import { Service } from "@/types/service.types";
+import { Service, ServiceCategory } from "@/types/service.types";
 import { baseApi } from "../../../app/baseApi";
 import type { PaginatedResponse, FilterParams } from "../../../types";
 
@@ -26,6 +26,31 @@ export const servicesApi = baseApi.injectEndpoints({
           : [{ type: "Service", id: "LIST" }],
     }),
 
+    createServiceCategory: builder.query<PaginatedResponse<ServiceCategory>, Partial<ServiceCategory> >({
+      query: (body) => ({
+        url: `/services/category-create`,
+        method: "POST",
+        body,
+      }),
+      transformResponse: (res: { data: PaginatedResponse<ServiceCategory> }) =>
+        res.data,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "ServiceCategory" as const,
+                id,
+              })),
+              { type: "ServiceCategory", id: "LIST" },
+            ]
+          : [{ type: "ServiceCategory", id: "LIST" }],
+    }),
+
+    getServiceCategory: builder.query<Service, string>({
+      query: () => `/services/service-category`,
+      transformResponse: (res: { data: Service }) => res.data,
+      providesTags: (_r, _e, id) => [{ type: "ServiceCategory", id }],
+    }),
     getServiceById: builder.query<Service, string>({
       query: (id) => `/services/${id}`,
       transformResponse: (res: { data: Service }) => res.data,
@@ -38,17 +63,13 @@ export const servicesApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "Service", id: "LIST" }],
     }),
 
-    updateService: builder.mutation<
-      Service,
-      { id: string; body: Partial<Service> }
-    >({
+    updateService: builder.mutation< Service,{ id: string; body: Partial<Service> }>({
       query: ({ id, body }) => ({
         url: `/services/${id}`,
         method: "PATCH",
         body,
       }),
       transformResponse: (res: { data: Service }) => res.data,
-      // FIX: invalidate both the item AND the list
       invalidatesTags: (_r, _e, { id }) => [
         { type: "Service", id },
         { type: "Service", id: "LIST" },
@@ -66,7 +87,6 @@ export const servicesApi = baseApi.injectEndpoints({
         method: "PATCH",
       }),
       transformResponse: (res: { data: Service }) => res.data,
-      // FIX: invalidate both the item AND the list
       invalidatesTags: (_r, _e, id) => [
         { type: "Service", id },
         { type: "Service", id: "LIST" },
@@ -82,5 +102,6 @@ export const {
   useCreateServiceMutation,
   useUpdateServiceMutation,
   useDeleteServiceMutation,
+  useGetServiceCategoryQuery,
   useToggleServiceStatusMutation,
 } = servicesApi;

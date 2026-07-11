@@ -84,15 +84,15 @@ export function ServiceCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setShowDetails(true)}>
+                <DropdownMenuItem className="hover:cursor-pointer" onClick={() => setShowDetails(true)}>
                   <FileText className="mr-2 h-4 w-4" />
                   View details
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onEdit?.(service)}>
+                <DropdownMenuItem className="hover:cursor-pointer" onClick={() => onEdit?.(service)}>
                   <Pencil className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onToggleStatus?.(service)}>
+                <DropdownMenuItem className="hover:cursor-pointer" onClick={() => onToggleStatus?.(service)}>
                   {isActive ? (
                     <>
                       <PowerOff className="mr-2 h-4 w-4" />
@@ -107,7 +107,7 @@ export function ServiceCard({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => onDelete?.(service)}
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive focus:text-destructive hover:cursor-pointer"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete

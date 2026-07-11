@@ -4,7 +4,6 @@ import type { PaginatedResponse, FilterParams } from "../../../types";
 
 export const requestsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // FIX: was PaginatedResponse<ServiceRequest[]> — remove the []
     getRequests: builder.query<PaginatedResponse<ServiceRequest>, FilterParams>(
       {
         query: (params = {}) => {

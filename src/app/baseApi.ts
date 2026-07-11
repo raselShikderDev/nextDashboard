@@ -13,6 +13,7 @@ export const baseApi = createApi({
     "Service",
     "Notification",
     "Dashboard",
+    "ServiceCategory",
   ],
   endpoints: () => ({}),
 });

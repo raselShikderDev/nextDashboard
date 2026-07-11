@@ -20,6 +20,7 @@ import {
   useUpdateServiceMutation,
   useDeleteServiceMutation,
   useToggleServiceStatusMutation,
+  useGetServiceCategoryQuery,
 } from "../api/servicesApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useToast } from "../../../hooks/useToast";
@@ -92,7 +93,7 @@ export function ServicesPage() {
   const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
   const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();
   const [toggleStatus] = useToggleServiceStatusMutation();
-
+  const {data:Servicecatagories, isLoading: isGetServiceCategoryLoading, isFetching: isGetServiceCategoryFetching,  } = useGetAllServicesQuery({});
   const handleCreate = async (formData: ServiceFormData) => {
     try {
       // FIX 3 & 4: Convert price to string before sending
@@ -106,6 +107,9 @@ export function ServicesPage() {
       toast({ variant: "destructive", title: "Failed to create service" });
     }
   };
+
+  console.log({Servicecatagories});
+  
 
   const handleEdit = async (formData: ServiceFormData) => {
     if (!selectedService) return;
