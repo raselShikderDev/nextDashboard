@@ -83,17 +83,33 @@ export function ServicesPage() {
     data: serviceData,
     isLoading: isGetServiceLoading,
     isFetching: isGetServiceFetching,
-  } = useGetAllServicesQuery({
-    page,
-    limit,
-    searchTerm: debouncedSearch || undefined,
-    status: statusFilter !== "all" ? statusFilter : undefined,
+    isError,
+    error,
+    status,
+    refetch,
+  } = useGetAllServicesQuery(
+    {
+      page,
+      limit,
+      searchTerm: debouncedSearch || undefined,
+      status: statusFilter !== "all" ? statusFilter : undefined,
+    },
+    {
+      refetchOnMountOrArgChange: true, // <-- force refetch
+    },
+  );
+
+  console.log({
+    status,
+    isGetServiceLoading,
+    isGetServiceFetching,
+    isError,
+    error,
+    data: serviceData?.data,
   });
 
-  const {
-    data: serviceCategories,
-    isLoading: isGetServiceCategoryLoading,
-  } = useGetServiceCategoriesQuery();
+  const { data: serviceCategories, isLoading: isGetServiceCategoryLoading } =
+    useGetServiceCategoriesQuery();
 
   const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
   const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();

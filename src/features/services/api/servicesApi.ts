@@ -12,10 +12,10 @@ export const servicesApi = baseApi.injectEndpoints({
         });
         return `/services?${qs.toString()}`;
       },
-      transformResponse: (res: { data: PaginatedResponse<Service> }) => {
-        console.log({ data: res?.data });
-
-        return res.data;
+      // FIX: res IS PaginatedResponse, not { data: PaginatedResponse }
+      transformResponse: (res: PaginatedResponse<Service>) => {
+        console.log("Raw API response:", res);
+        return res; // <-- return res directly, not res.data
       },
       providesTags: (result) =>
         result
@@ -28,6 +28,7 @@ export const servicesApi = baseApi.injectEndpoints({
             ]
           : [{ type: "Service", id: "LIST" }],
     }),
+
     createServiceCategory: builder.mutation<
       ServiceCategory,
       Partial<ServiceCategory>
@@ -103,7 +104,7 @@ export const {
   useCreateServiceMutation,
   useUpdateServiceMutation,
   useDeleteServiceMutation,
-  useGetServiceCategoriesQuery, // FIX 3: updated export name
-  useCreateServiceCategoryMutation, // FIX 3: updated export name
+  useGetServiceCategoriesQuery,
+  useCreateServiceCategoryMutation,
   useToggleServiceStatusMutation,
 } = servicesApi;
