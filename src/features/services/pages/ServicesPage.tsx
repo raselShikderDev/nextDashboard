@@ -95,8 +95,6 @@ export function ServicesPage() {
     },
   );
 
-  const { data: serviceCategories } = useGetServiceCategoriesQuery();
-
   const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
   const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
   const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();

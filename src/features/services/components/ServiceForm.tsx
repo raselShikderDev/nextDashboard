@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -20,13 +21,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Service } from "@/types/service.types";
-// FIX 1: Correct hook name from useGetServiceCategoriesQuery to useGetAllServiceCategoriesQuery
 import { useGetAllServiceCategoriesQuery } from "../api/serviceCategoryApi";
-import { CheckboxItem } from "@radix-ui/react-dropdown-menu";
 
 const serviceSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
-  description: z.string().min(1, "Description is required"), // FIX: Make required to match type
+  description: z.string().min(1, "Description is required"),
   price: z.coerce.number().min(0, "Price must be positive"),
   currency: z.string().default("BDT"),
   categoryId: z.string().min(1, "Category is required"),
@@ -81,9 +80,8 @@ export function ServiceForm({
     },
   });
 
-  // FIX 1: Use correct hook name
   const { data: categoriesData } = useGetAllServiceCategoriesQuery();
-  const categories = categoriesData ?? [];
+  const categories = categoriesData?.data ?? [];
 
   const selectedCategoryId = watch("categoryId");
   const isActive = watch("isActive");
@@ -167,14 +165,15 @@ export function ServiceForm({
                 <p className="text-xs text-destructive">{errors.price.message}</p>
               )}
             </div>
+            {/* FIX: Ensure Select has proper Content wrapper */}
             <div className="space-y-1.5">
               <Label htmlFor="currency">Currency</Label>
               <Select
                 value={watch("currency")}
                 onValueChange={(v) => setValue("currency", v)}
               >
-                <SelectTrigger>
-                  <SelectValue />
+                <SelectTrigger id="currency">
+                  <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="BDT">BDT</SelectItem>
@@ -185,21 +184,28 @@ export function ServiceForm({
             </div>
           </div>
 
+          {/* FIX: Ensure Select has proper Content wrapper */}
           <div className="space-y-1.5">
             <Label htmlFor="categoryId">Category</Label>
             <Select
               value={selectedCategoryId}
               onValueChange={(v) => setValue("categoryId", v)}
             >
-              <SelectTrigger>
+              <SelectTrigger id="categoryId">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((cat: { id: string; name: string }) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.name}
+                {categories.length === 0 ? (
+                  <SelectItem value="" disabled>
+                    No categories available
                   </SelectItem>
-                ))}
+                ) : (
+                  categories.map((cat: { id: string; name: string }) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
             {errors.categoryId && (
@@ -238,10 +244,9 @@ export function ServiceForm({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center gap-2">
-              <CheckboxItem
+              <Checkbox
                 id="requiresQuotation"
                 checked={requiresQuotation}
-                // FIX 3: Add type annotation for checked
                 onCheckedChange={(checked: boolean | "indeterminate") =>
                   setValue("requiresQuotation", checked === true)
                 }
@@ -251,10 +256,9 @@ export function ServiceForm({
               </Label>
             </div>
             <div className="flex items-center gap-2">
-              <CheckboxItem
+              <Checkbox
                 id="isActive"
                 checked={isActive}
-                // FIX 3: Add type annotation for checked
                 onCheckedChange={(checked: boolean | "indeterminate") =>
                   setValue("isActive", checked === true)
                 }
