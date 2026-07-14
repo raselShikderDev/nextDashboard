@@ -12,6 +12,8 @@ import {
   ChevronRight,
   Shield,
   LogOut,
+  FolderTree,
+  Tags,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
@@ -33,6 +35,7 @@ const NAV_ITEMS = [
   { to: "/payments", icon: CreditCard, label: "Payments" },
   { to: "/users", icon: Users, label: "Users" },
   { to: "/services", icon: Package, label: "Services" },
+  { to: "/services/categories", icon: Tags, label: "Services Categoris" },
   { to: "/notifications", icon: Bell, label: "Notifications" },
   { to: "/settings", icon: Settings, label: "Settings" },
 ];
