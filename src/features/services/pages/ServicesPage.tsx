@@ -86,7 +86,6 @@ export function ServicesPage() {
     isError,
     error,
     status,
-    refetch,
   } = useGetAllServicesQuery(
     {
       page,
@@ -95,7 +94,7 @@ export function ServicesPage() {
       status: statusFilter !== "all" ? statusFilter : undefined,
     },
     {
-      refetchOnMountOrArgChange: true, // <-- force refetch
+      refetchOnMountOrArgChange: true, 
     },
   );
 
@@ -264,6 +263,7 @@ export function ServicesPage() {
         defaultValues={selectedService ?? undefined}
         isLoading={isCreating || isUpdating}
         mode={selectedService ? "edit" : "create"}
+        serviceCategory={serviceCategories || null}
       />
       <ConfirmDialog
         open={!!deleteTarget}
