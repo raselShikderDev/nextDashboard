@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { PageWrapper } from "../../../layouts/PageWrapper";
 import { PageHeader } from "../../../components/PageHeader";
 import { SearchInput } from "../../../components/SearchInput";
-import { ServiceForm } from "../components/ServiceForm";
+// FIX: Import ServiceFormData from ServiceForm component, not validators
+import { ServiceForm, ServiceFormData } from "../components/ServiceForm";
 import { ConfirmDialog } from "../../../components/ConfirmDialog";
 import { Button } from "../../../components/ui/button";
 import {
@@ -24,8 +25,7 @@ import {
 } from "../api/servicesApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useToast } from "../../../hooks/useToast";
-import type { ServiceFormData } from "../../../lib/validators";
-import { Service, ServiceCategory } from "@/types/service.types";
+import { Service } from "@/types/service.types";
 import { usePagination } from "../../../hooks/usePagination";
 import { ServiceCard } from "../components/ServicesGrid";
 
@@ -83,9 +83,6 @@ export function ServicesPage() {
     data: serviceData,
     isLoading: isGetServiceLoading,
     isFetching: isGetServiceFetching,
-    isError,
-    error,
-    status,
   } = useGetAllServicesQuery(
     {
       page,
@@ -94,28 +91,16 @@ export function ServicesPage() {
       status: statusFilter !== "all" ? statusFilter : undefined,
     },
     {
-      refetchOnMountOrArgChange: true, 
+      refetchOnMountOrArgChange: true,
     },
   );
 
-  console.log({
-    status,
-    isGetServiceLoading,
-    isGetServiceFetching,
-    isError,
-    error,
-    data: serviceData?.data,
-  });
-
-  const { data: serviceCategories, isLoading: isGetServiceCategoryLoading } =
-    useGetServiceCategoriesQuery();
+  const { data: serviceCategories } = useGetServiceCategoriesQuery();
 
   const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
   const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
   const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();
   const [toggleStatus] = useToggleServiceStatusMutation();
-
-  console.log({ serviceData, serviceCategories });
 
   const handleCreate = async (formData: ServiceFormData) => {
     try {
@@ -186,7 +171,6 @@ export function ServicesPage() {
     return matchesSearch && matchesStatus;
   });
 
-  // Show loading state
   if (isGetServiceLoading) {
     return (
       <PageWrapper>
@@ -263,7 +247,6 @@ export function ServicesPage() {
         defaultValues={selectedService ?? undefined}
         isLoading={isCreating || isUpdating}
         mode={selectedService ? "edit" : "create"}
-        serviceCategory={serviceCategories || null}
       />
       <ConfirmDialog
         open={!!deleteTarget}

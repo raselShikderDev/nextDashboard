@@ -9,6 +9,7 @@ import { UsersPage } from "../features/users/pages/UsersPage";
 import { ServicesPage } from "../features/services/pages/ServicesPage";
 import { NotificationsPage } from "../features/notifications/pages/NotificationsPage";
 import { SettingsPage } from "../features/settings/pages/SettingsPage";
+import { ServiceCategoriesPage } from "@/features/services/pages/ServiceCategoriesPage";
 
 function NotFound() {
   return (
@@ -44,6 +45,7 @@ export const router = createBrowserRouter([
         { path: "payments", element: <PaymentsPage /> },
         { path: "users", element: <UsersPage /> },
         { path: "services", element: <ServicesPage /> },
+        { path: "/services/categories", element: <ServiceCategoriesPage /> },
         { path: "notifications", element: <NotificationsPage /> },
         { path: "settings", element: <SettingsPage /> },
         { path: "unauthorized", element: <Unauthorized /> },
