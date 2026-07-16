@@ -41,13 +41,13 @@ interface ServiceCategoryCardProps {
 
 const iconMap: Record<string, React.ReactNode> = {
   "graduation-cap": <GraduationCap className="h-5 w-5" />,
-  "briefcase": <Briefcase className="h-5 w-5" />,
-  "globe": <Globe className="h-5 w-5" />,
-  "plane": <Plane className="h-5 w-5" />,
+  briefcase: <Briefcase className="h-5 w-5" />,
+  globe: <Globe className="h-5 w-5" />,
+  plane: <Plane className="h-5 w-5" />,
   "book-open": <BookOpen className="h-5 w-5" />,
   "file-text": <FileText className="h-5 w-5" />,
-  "tag": <Tag className="h-5 w-5" />,
-  "hash": <Hash className="h-5 w-5" />,
+  tag: <Tag className="h-5 w-5" />,
+  hash: <Hash className="h-5 w-5" />,
 };
 
 export function ServiceCategoryCard({

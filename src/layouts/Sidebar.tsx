@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -14,6 +15,7 @@ import {
   LogOut,
   FolderTree,
   Tags,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
@@ -26,16 +28,34 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../components/ui/popover";
 import { useGetMeQuery } from "@/features/users/api/usersApi";
 import { getInitials } from "@/app/helpers/helpers";
 
-const NAV_ITEMS = [
+interface NavItem {
+  to?: string;
+  icon: LucideIcon;
+  label: string;
+  children?: NavItem[];
+}
+
+const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/requests", icon: FileText, label: "Requests" },
   { to: "/payments", icon: CreditCard, label: "Payments" },
   { to: "/users", icon: Users, label: "Users" },
-  { to: "/services", icon: Package, label: "Services" },
-  { to: "/services/categories", icon: Tags, label: "Services Categoris" },
+  {
+    icon: Package,
+    label: "Services",
+    children: [
+      { to: "/services", icon: Package, label: "All Services" },
+      { to: "/services/categories", icon: FolderTree, label: "Categories" },
+    ],
+  },
   { to: "/notifications", icon: Bell, label: "Notifications" },
   { to: "/settings", icon: Settings, label: "Settings" },
 ];
@@ -45,11 +65,20 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
+// exact match or route is a sub-path — avoids "/services" matching "/services/categories"
+const isPathActive = (pathname: string, to?: string) =>
+  !!to && (pathname === to || pathname.startsWith(`${to}/`));
+
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const dispatch = useAppDispatch();
   const { data: user, isLoading: getMeLoading } = useGetMeQuery();
   const unreadCount = useAppSelector((s) => s.notifications.unreadCount);
   const location = useLocation();
+
+  // manual open/close state; falls back to "open if a child route is active"
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const toggleGroup = (label: string) =>
+    setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -58,6 +87,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className="relative flex flex-col h-screen bg-card border-r border-border shrink-0 z-30 overflow-hidden"
       >
+        {/* header — unchanged */}
         <div className="flex items-center gap-3 px-4 h-16 border-b border-border shrink-0">
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0">
             <Shield className="w-5 h-5 text-primary-foreground" />
@@ -78,15 +108,137 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </div>
 
         <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto overflow-x-hidden">
-          {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
-            const isActive =
-              to === "/dashboard"
-                ? location.pathname === "/dashboard"
-                : location.pathname.startsWith(to);
+          {NAV_ITEMS.map((item) => {
+            const { icon: Icon, label, children } = item;
+
+            // ---------- Group with children ----------
+            if (children?.length) {
+              const childActive = children.some((c) =>
+                isPathActive(location.pathname, c.to),
+              );
+              const isOpen = openGroups[label] ?? childActive;
+
+              // Collapsed: icon button opens a flyout with the children
+              if (collapsed) {
+                return (
+                  <Popover key={label}>
+                    <PopoverTrigger asChild>
+                      <button
+                        className={cn(
+                          "flex w-full items-center justify-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+                          childActive
+                            ? "bg-primary/10 text-primary"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                        )}
+                      >
+                        <Icon className="w-5 h-5 shrink-0" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      side="right"
+                      align="start"
+                      sideOffset={12}
+                      className="w-48 p-1.5"
+                    >
+                      <p className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {label}
+                      </p>
+                      {children.map((child) => {
+                        const ChildIcon = child.icon;
+                        const active = isPathActive(location.pathname, child.to);
+                        return (
+                          <NavLink
+                            key={child.to}
+                            to={child.to!}
+                            className={cn(
+                              "flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium transition-colors",
+                              active
+                                ? "bg-primary text-primary-foreground"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                            )}
+                          >
+                            <ChildIcon className="w-4 h-4 shrink-0" />
+                            {child.label}
+                          </NavLink>
+                        );
+                      })}
+                    </PopoverContent>
+                  </Popover>
+                );
+              }
+
+              // Expanded: accordion with animated submenu
+              return (
+                <div key={label}>
+                  <button
+                    onClick={() => toggleGroup(label)}
+                    className={cn(
+                      "flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+                      childActive
+                        ? "bg-muted text-foreground"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                    )}
+                  >
+                    <Icon className="w-5 h-5 shrink-0" />
+                    <span className="flex-1 text-left whitespace-nowrap">
+                      {label}
+                    </span>
+                    <ChevronRight
+                      className={cn(
+                        "w-4 h-4 shrink-0 transition-transform duration-200",
+                        isOpen && "rotate-90",
+                      )}
+                    />
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="ml-[1.65rem] mt-1 space-y-1 border-l border-border pl-3">
+                          {children.map((child) => {
+                            const ChildIcon = child.icon;
+                            const active = isPathActive(
+                              location.pathname,
+                              child.to,
+                            );
+                            return (
+                              <NavLink
+                                key={child.to}
+                                to={child.to!}
+                                className={cn(
+                                  "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150",
+                                  active
+                                    ? "bg-primary text-primary-foreground shadow-sm"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                                )}
+                              >
+                                <ChildIcon className="w-4 h-4 shrink-0" />
+                                <span className="whitespace-nowrap">
+                                  {child.label}
+                                </span>
+                              </NavLink>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            }
+
+            // ---------- Flat item (same as before) ----------
+            const isActive = isPathActive(location.pathname, item.to);
             const showBadge = label === "Notifications" && unreadCount > 0;
             const navContent = (
               <NavLink
-                to={to}
+                to={item.to!}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative group",
                   isActive
@@ -122,78 +274,16 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               </NavLink>
             );
             return collapsed ? (
-              <Tooltip key={to}>
+              <Tooltip key={item.to}>
                 <TooltipTrigger asChild>{navContent}</TooltipTrigger>
                 <TooltipContent side="right">{label}</TooltipContent>
               </Tooltip>
             ) : (
-              <div key={to}>{navContent}</div>
+              <div key={item.to}>{navContent}</div>
             );
           })}
         </nav>
 
-        <div className="border-t border-border p-2 shrink-0">
-          {user && (
-            <div
-              className={cn(
-                "flex items-center gap-3 px-2 py-2 rounded-lg",
-                collapsed ? "justify-center" : "",
-              )}
-            >
-              <Avatar className="w-8 h-8 shrink-0">
-                <AvatarImage src={user?.userDetails?.avatarUrl || " "} />
-                <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                  {getInitials(user?.userDetails?.name)}
-                </AvatarFallback>
-              </Avatar>
-              <AnimatePresence>
-                {!collapsed && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex-1 min-w-0"
-                  >
-                    <p className="text-sm font-medium truncate">
-                      {user?.userDetails?.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate capitalize">
-                      {user.role}
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              {!collapsed && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 shrink-0"
-                      onClick={() => dispatch(logout())}
-                    >
-                      <LogOut className="w-4 h-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Logout</TooltipContent>
-                </Tooltip>
-              )}
-            </div>
-          )}
-        </div>
-
-        <Button
-          variant="outline"
-          size="icon"
-          className="absolute -right-3 top-[4.5rem] h-6 w-6 rounded-full border bg-background shadow-md z-10"
-          onClick={onToggle}
-        >
-          {collapsed ? (
-            <ChevronRight className="w-3 h-3" />
-          ) : (
-            <ChevronLeft className="w-3 h-3" />
-          )}
-        </Button>
       </motion.aside>
     </TooltipProvider>
   );
