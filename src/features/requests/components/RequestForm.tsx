@@ -70,6 +70,15 @@ export function RequestForm({
     },
   });
 
+  // serviceId: z.string(), ------
+	// guestName: z.string().min(2), ----
+	// guestEmail: z.email(), ----
+	// guestPhone: z.string().min(11),----
+	// guestAddress: z.string().optional(),----
+	// guestSource: z.string().optional(),
+	// formData: z.record(z.string(), z.any()),
+	// userNotes: z.string().optional(),----
+
   useEffect(() => {
     if (mode === "edit" && defaultValues) {
       reset({
@@ -97,6 +106,9 @@ export function RequestForm({
   };
 
   const handleFormSubmit = async (data: RequestFormData) => {
+    console.log("in 109 of requestForm", {data});
+    const formData = JSON.stringify(data)
+    data.formData = formData
     await onSubmit(data);
 
     if (mode === "create") {
