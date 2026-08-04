@@ -18,7 +18,7 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-    const location = useLocation();
+  const location = useLocation();
   const [login, { isLoading }] = useLoginMutation();
 
   const {
@@ -35,13 +35,24 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     const loadingId = toast.loading("Signing you in...");
-    const url = location.pathname
-    console.log({url});
-    
+    const url = location.pathname;
+    console.log({ url });
+
     try {
+      // const result = await login(data).unwrap();
+      // dispatch(setCredentials(result.user));
+      // navigate("/dashboard", { replace: true });
+      // toast.success("Welcome back 👋", {
+      //   id: loadingId,
+      //   description: "Successfully signed in",
+      // });
       const result = await login(data).unwrap();
       dispatch(setCredentials(result.user));
-      navigate("/dashboard", { replace: true });
+
+      setTimeout(() => {
+        navigate("/dashboard", { replace: true });
+      }, 0);
+
       toast.success("Welcome back 👋", {
         id: loadingId,
         description: "Successfully signed in",
