@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,10 +24,6 @@ import { ServiceCategory } from "@/types/service.types";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
-  slug: z
-    .string()
-    .min(1, "Slug is required")
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be kebab-case"),
   description: z.string().optional(),
   icon: z.string().optional(),
   sortOrder: z.coerce.number().min(0).default(0),
@@ -37,7 +34,7 @@ export type ServiceCategoryFormData = z.infer<typeof categorySchema>;
 interface ServiceCategoryFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: ServiceCategoryFormData) => void;
+  onSubmit: (data: ServiceCategoryFormData) => Promise<void>; // ✅ async
   defaultValues?: Partial<ServiceCategory>;
   isLoading?: boolean;
   mode?: "create" | "edit";
@@ -68,12 +65,11 @@ export function ServiceCategoryForm({
     reset,
     setValue,
     watch,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<ServiceCategoryFormData>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: "",
-      slug: "",
       description: "",
       icon: "graduation-cap",
       sortOrder: 0,
@@ -84,9 +80,7 @@ export function ServiceCategoryForm({
     if (open) {
       reset({
         name: defaultValues?.name ?? "",
-        slug: defaultValues?.slug ?? "",
-        // FIX: Convert null to undefined using ?? undefined
-        description: defaultValues?.description ?? undefined,
+        description: defaultValues?.description ?? "",
         icon: defaultValues?.icon ?? "graduation-cap",
         sortOrder: defaultValues?.sortOrder ?? 0,
       });
@@ -94,6 +88,11 @@ export function ServiceCategoryForm({
   }, [open, defaultValues, reset]);
 
   const selectedIcon = watch("icon");
+
+  // ✅ Proper async handler with error propagation
+  const handleFormSubmit = async (data: ServiceCategoryFormData) => {
+    await onSubmit(data);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -103,9 +102,9 @@ export function ServiceCategoryForm({
             {mode === "create" ? "Create Category" : "Edit Category"}
           </DialogTitle>
         </DialogHeader>
-        {/* FIX: Wrap handleSubmit with explicit typing */}
+
         <form
-          onSubmit={handleSubmit((data) => onSubmit(data))}
+          onSubmit={handleSubmit(handleFormSubmit)}
           className="space-y-4"
         >
           <div className="space-y-1.5">
@@ -117,18 +116,6 @@ export function ServiceCategoryForm({
             />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="slug">Slug</Label>
-            <Input
-              id="slug"
-              placeholder="e.g. study-abroad"
-              {...register("slug")}
-            />
-            {errors.slug && (
-              <p className="text-xs text-destructive">{errors.slug.message}</p>
             )}
           </div>
 
@@ -146,7 +133,7 @@ export function ServiceCategoryForm({
             <Label htmlFor="icon">Icon</Label>
             <Select
               value={selectedIcon}
-              onValueChange={(v) => setValue("icon", v)}
+              onValueChange={(v) => setValue("icon", v, { shouldDirty: true })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select an icon" />
@@ -162,7 +149,7 @@ export function ServiceCategoryForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="sortOrder">Sort Order</Label>
+            <Label htmlFor="sortOrder">Sorting Order</Label>
             <Input
               id="sortOrder"
               type="number"
@@ -185,14 +172,14 @@ export function ServiceCategoryForm({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading
-                ? mode === "create"
-                  ? "Creating..."
-                  : "Saving..."
-                : mode === "create"
-                  ? "Create"
-                  : "Save Changes"}
+            <Button
+              type="submit"
+              disabled={isLoading || (mode === "edit" && !isDirty)}
+            >
+              {isLoading && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {mode === "create" ? "Create" : "Save Changes"}
             </Button>
           </div>
         </form>

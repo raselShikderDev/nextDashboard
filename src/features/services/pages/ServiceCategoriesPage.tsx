@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Filter } from "lucide-react";
+import { Plus, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { PageWrapper } from "../../../layouts/PageWrapper";
 import { PageHeader } from "../../../components/PageHeader";
@@ -24,10 +24,10 @@ import {
 } from "../api/serviceCategoryApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useToast } from "../../../hooks/useToast";
-import { usePagination } from "../../../hooks/usePagination";
 import { ServiceCategory } from "@/types/service.types";
 import type { ServiceCategoryFormData } from "../components/ServiceCategoryForm";
 
+// Only used in development when API is unavailable
 const MOCK_CATEGORIES: ServiceCategory[] = [
   {
     id: "cat-1",
@@ -55,19 +55,21 @@ const MOCK_CATEGORIES: ServiceCategory[] = [
 
 export function ServiceCategoriesPage() {
   const { toast } = useToast();
-  const { page, limit } = usePagination();
+  const [page, setPage] = useState(1);
+  const limit = 10;
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ServiceCategory | null>(null);
 
-  const debouncedSearch = useDebounce(search);
+  const debouncedSearch = useDebounce(search, 300);
 
   const {
     data: categoryData,
     isLoading: isGetLoading,
     isFetching: isGetFetching,
+    isError,
   } = useGetAllServiceCategoriesQuery({
     page,
     limit,
@@ -81,12 +83,21 @@ export function ServiceCategoriesPage() {
   const [toggleStatus] = useToggleServiceCategoryStatusMutation();
 
   const handleCreate = async (formData: ServiceCategoryFormData) => {
+
+    const payload = {
+      ...formData,
+      slug: formData.name.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-")  
+    }
     try {
-      await createCategory(formData).unwrap();
+      await createCategory(payload).unwrap();
       toast({ title: "Category created successfully" });
       setIsFormOpen(false);
-    } catch {
-      toast({ variant: "destructive", title: "Failed to create category" });
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Failed to create category",
+        description: err?.data?.message || "Please try again",
+      });
     }
   };
 
@@ -100,8 +111,12 @@ export function ServiceCategoriesPage() {
       toast({ title: "Category updated successfully" });
       setSelectedCategory(null);
       setIsFormOpen(false);
-    } catch {
-      toast({ variant: "destructive", title: "Failed to update category" });
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Failed to update category",
+        description: err?.data?.message || "Please try again",
+      });
     }
   };
 
@@ -130,20 +145,12 @@ export function ServiceCategoriesPage() {
     }
   };
 
-  const allCategories = categoryData?.data ?? MOCK_CATEGORIES;
-
-  const filteredCategories = allCategories.filter((cat: ServiceCategory) => {
-    const matchesSearch =
-      !debouncedSearch ||
-      cat.name.toLowerCase().includes(debouncedSearch.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && cat.isActive) ||
-      (statusFilter === "inactive" && !cat.isActive);
-    return matchesSearch && matchesStatus;
-  });
-
+  // Use API data; fallback to mocks ONLY in dev when API hasn't loaded yet
+  const categories = categoryData?.data ?? (import.meta.env.DEV ? MOCK_CATEGORIES : []);
+  const totalItems = categoryData?.meta?.total ?? categories.length;
+  const totalPages = Math.ceil(totalItems / limit);
   const showLoader = isGetLoading || isGetFetching;
+  const isEmpty = !showLoader && categories.length === 0;
 
   return (
     <PageWrapper>
@@ -174,7 +181,7 @@ export function ServiceCategoriesPage() {
           placeholder="Search categories..."
           className="flex-1 max-w-sm"
         />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val); setPage(1); }}>
           <SelectTrigger className="w-36">
             <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
             <SelectValue placeholder="Status" />
@@ -191,21 +198,53 @@ export function ServiceCategoriesPage() {
         <div className="flex h-96 items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredCategories.map((category) => (
-            <ServiceCategoryCard
-              key={category.id}
-              category={category}
-              onEdit={(cat) => {
-                setSelectedCategory(cat);
-                setIsFormOpen(true);
-              }}
-              onDelete={setDeleteTarget}
-              onToggleStatus={handleToggleStatus}
-            />
-          ))}
+      ) : isEmpty ? (
+        <div className="flex h-96 flex-col items-center justify-center text-muted-foreground">
+          <p className="text-lg font-medium">No categories found</p>
+          <p className="text-sm">Try adjusting your search or filters</p>
         </div>
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map((category) => (
+              <ServiceCategoryCard
+                key={category.id}
+                category={category}
+                onEdit={(cat) => {
+                  setSelectedCategory(cat);
+                  setIsFormOpen(true);
+                }}
+                onDelete={setDeleteTarget}
+                onToggleStatus={handleToggleStatus}
+              />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       <ServiceCategoryForm
@@ -224,10 +263,11 @@ export function ServiceCategoriesPage() {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Delete Category"
-        description={`Are you sure you want to delete "${deleteTarget?.name}"?`}
+        description={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
         onConfirm={handleDelete}
         isLoading={isDeleting}
         confirmLabel="Delete"
+        variant="destructive"
       />
     </PageWrapper>
   );

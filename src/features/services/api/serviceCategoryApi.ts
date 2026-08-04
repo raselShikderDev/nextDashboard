@@ -4,10 +4,7 @@ import type { PaginatedResponse, FilterParams } from "../../../types";
 
 export const serviceCategoryApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllServiceCategories: builder.query<
-      PaginatedResponse<ServiceCategory>,
-      FilterParams | void
-    >({
+    getAllServiceCategories: builder.query<  PaginatedResponse<ServiceCategory>, FilterParams | void>({
       query: (params = {}) => {
         const qs = new URLSearchParams();
         if (params && typeof params === "object") {
@@ -36,16 +33,7 @@ export const serviceCategoryApi = baseApi.injectEndpoints({
       providesTags: (_r, _e, id) => [{ type: "ServiceCategory", id }],
     }),
 
-    createServiceCategory: builder.mutation<
-      ServiceCategory,
-      {
-        name: string;
-        slug: string;
-        description?: string;
-        icon?: string;
-        sortOrder?: number;
-      }
-    >({
+    createServiceCategory: builder.mutation< ServiceCategory,{ name: string; slug: string; description?: string; icon?: string;sortOrder?: number;    } >({
       query: (body) => ({
         url: "/services/category-create",
         method: "POST",
@@ -54,10 +42,7 @@ export const serviceCategoryApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "ServiceCategory", id: "LIST" }],
     }),
 
-    updateServiceCategory: builder.mutation<
-      ServiceCategory,
-      { id: string; body: Partial<Omit<ServiceCategory, "id" | "createdAt" | "updatedAt">> }
-    >({
+    updateServiceCategory: builder.mutation< ServiceCategory,{ id: string; body: Partial<Omit<ServiceCategory, "id" | "createdAt" | "updatedAt">> } >({
       query: ({ id, body }) => ({
         url: `/services/service-category/${id}`,
         method: "PATCH",
