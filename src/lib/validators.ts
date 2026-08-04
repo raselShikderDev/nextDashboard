@@ -47,38 +47,48 @@ export const serviceSchema = z.object({
   sortOrder: z.coerce.number().default(0),
 });
 
+// export const requestSchema = z.object({
+//   guestName: z
+//     .string()
+//     .min(2, "Guest name must be at least 2 characters"),
+
+//   guestEmail: z
+//     .string()
+//     .email("Please enter a valid email address"),
+
+//   guestPhone: z
+//     .string()
+//     .min(10, "Phone number must be at least 10 digits"),
+
+//   guestAddress: z
+//     .string()
+//     .min(3, "Address must be at least 3 characters"),
+
+//   guestSource: z
+//     .nativeEnum(GuestSource)
+//     .default(GuestSource.WEBSITE),
+
+//   serviceId: z
+//     .string()
+//     .min(1, "Service is required"),
+
+//   userNotes: z
+//     .string()
+//     .optional(),
+
+//   formData: z
+//     .record(z.any())
+//     .optional(),
+// });
 export const requestSchema = z.object({
-  guestName: z
-    .string()
-    .min(2, "Guest name must be at least 2 characters"),
-
-  guestEmail: z
-    .string()
-    .email("Please enter a valid email address"),
-
-  guestPhone: z
-    .string()
-    .min(10, "Phone number must be at least 10 digits"),
-
-  guestAddress: z
-    .string()
-    .min(3, "Address must be at least 3 characters"),
-
-  guestSource: z
-    .nativeEnum(GuestSource)
-    .default(GuestSource.WEBSITE),
-
-  serviceId: z
-    .string()
-    .min(1, "Service is required"),
-
-  userNotes: z
-    .string()
-    .optional(),
-
-  formData: z
-    .record(z.any())
-    .optional(),
+  guestName: z.string().min(2, "Guest name must be at least 2 characters"),
+  guestEmail: z.string().email("Please enter a valid email address"),
+  guestPhone: z.string().min(10, "Phone number must be at least 10 digits"),
+  guestAddress: z.string().min(3, "Address must be at least 3 characters"),
+  guestSource: z.nativeEnum(GuestSource).default(GuestSource.WEBSITE),
+  serviceId: z.string().min(1, "Service is required"),
+  userNotes: z.string().optional(),
+  formData: z.record(z.string(), z.any()).default({}),
 });
 
 export const requestUpdateSchema = z.object({
