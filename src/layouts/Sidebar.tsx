@@ -34,7 +34,6 @@ import {
   PopoverTrigger,
 } from "../components/ui/popover";
 import { useGetMeQuery } from "@/features/users/api/usersApi";
-import { getInitials } from "@/app/helpers/helpers";
 
 interface NavItem {
   to?: string;
@@ -70,8 +69,6 @@ const isPathActive = (pathname: string, to?: string) =>
   !!to && (pathname === to || pathname.startsWith(`${to}/`));
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const dispatch = useAppDispatch();
-  const { data: user, isLoading: getMeLoading } = useGetMeQuery();
   const unreadCount = useAppSelector((s) => s.notifications.unreadCount);
   const location = useLocation();
 
@@ -87,7 +84,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className="relative flex flex-col h-screen bg-card border-r border-border shrink-0 z-30 overflow-hidden"
       >
-        {/* header — unchanged */}
+        {/* header */}
         <div className="flex items-center gap-3 px-4 h-16 border-b border-border shrink-0">
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0">
             <Shield className="w-5 h-5 text-primary-foreground" />
