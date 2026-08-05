@@ -60,8 +60,11 @@ export function ServiceCategoriesPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<ServiceCategory | null>(null);
+  const [selectedCategory, setSelectedCategory] =
+    useState<ServiceCategory | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ServiceCategory | null>(
+    null,
+  );
 
   const debouncedSearch = useDebounce(search, 300);
 
@@ -77,17 +80,23 @@ export function ServiceCategoriesPage() {
     status: statusFilter !== "all" ? statusFilter : undefined,
   });
 
-  const [createCategory, { isLoading: isCreating }] = useCreateServiceCategoryMutation();
-  const [updateCategory, { isLoading: isUpdating }] = useUpdateServiceCategoryMutation();
-  const [deleteCategory, { isLoading: isDeleting }] = useDeleteServiceCategoryMutation();
+  const [createCategory, { isLoading: isCreating }] =
+    useCreateServiceCategoryMutation();
+  const [updateCategory, { isLoading: isUpdating }] =
+    useUpdateServiceCategoryMutation();
+  const [deleteCategory, { isLoading: isDeleting }] =
+    useDeleteServiceCategoryMutation();
   const [toggleStatus] = useToggleServiceCategoryStatusMutation();
 
   const handleCreate = async (formData: ServiceCategoryFormData) => {
-
     const payload = {
       ...formData,
-      slug: formData.name.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-")  
-    }
+      slug: formData.name
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-"),
+    };
     try {
       await createCategory(payload).unwrap();
       toast({ title: "Category created successfully" });
@@ -103,10 +112,18 @@ export function ServiceCategoriesPage() {
 
   const handleEdit = async (formData: ServiceCategoryFormData) => {
     if (!selectedCategory) return;
+    const payload = {
+      ...formData,
+      slug: formData.name
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-"),
+    };
     try {
       await updateCategory({
         id: selectedCategory.id,
-        body: formData,
+        body: payload,
       }).unwrap();
       toast({ title: "Category updated successfully" });
       setSelectedCategory(null);
@@ -146,7 +163,8 @@ export function ServiceCategoriesPage() {
   };
 
   // Use API data; fallback to mocks ONLY in dev when API hasn't loaded yet
-  const categories = categoryData?.data ?? (import.meta.env.DEV ? MOCK_CATEGORIES : []);
+  const categories =
+    categoryData?.data ?? (import.meta.env.DEV ? MOCK_CATEGORIES : []);
   const totalItems = categoryData?.meta?.total ?? categories.length;
   const totalPages = Math.ceil(totalItems / limit);
   const showLoader = isGetLoading || isGetFetching;
@@ -181,7 +199,13 @@ export function ServiceCategoriesPage() {
           placeholder="Search categories..."
           className="flex-1 max-w-sm"
         />
-        <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val); setPage(1); }}>
+        <Select
+          value={statusFilter}
+          onValueChange={(val) => {
+            setStatusFilter(val);
+            setPage(1);
+          }}
+        >
           <SelectTrigger className="w-36">
             <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
             <SelectValue placeholder="Status" />

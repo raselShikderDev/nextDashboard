@@ -18,7 +18,6 @@ import {
 import {
   MoreHorizontal,
   Pencil,
-  Trash2,
   Power,
   PowerOff,
   GraduationCap,
@@ -88,15 +87,24 @@ export function ServiceCategoryCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setShowDetails(true)}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => setShowDetails(true)}
+                >
                   <FileText className="mr-2 h-4 w-4" />
                   View details
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onEdit?.(category)}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => onEdit?.(category)}
+                >
                   <Pencil className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onToggleStatus?.(category)}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => onToggleStatus?.(category)}
+                >
                   {isActive ? (
                     <>
                       <PowerOff className="mr-2 h-4 w-4" />
@@ -109,13 +117,13 @@ export function ServiceCategoryCard({
                     </>
                   )}
                 </DropdownMenuItem>
-                <DropdownMenuItem
+                {/* <DropdownMenuItem
                   onClick={() => onDelete?.(category)}
                   className="text-destructive focus:text-destructive"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -209,8 +217,14 @@ export function ServiceCategoryCard({
             </div>
 
             <div className="flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
-              <span>Created {new Date(category.createdAt).toLocaleDateString("en-GB")}</span>
-              <span>Updated {new Date(category.updatedAt).toLocaleDateString("en-GB")}</span>
+              <span>
+                Created{" "}
+                {new Date(category.createdAt).toLocaleDateString("en-GB")}
+              </span>
+              <span>
+                Updated{" "}
+                {new Date(category.updatedAt).toLocaleDateString("en-GB")}
+              </span>
             </div>
           </div>
         </DialogContent>
