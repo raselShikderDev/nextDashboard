@@ -1,6 +1,7 @@
 import { ServiceCategory } from "@/types/service.types";
 import { baseApi } from "../../../app/baseApi";
 import type { PaginatedResponse, FilterParams } from "../../../types";
+import { ServiceCategoryFormData } from "../components/ServiceCategoryForm";
 
 export const serviceCategoryApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -42,13 +43,24 @@ export const serviceCategoryApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "ServiceCategory", id: "LIST" }],
     }),
 
-    updateServiceCategory: builder.mutation< ServiceCategory,{ id: string; body: Partial<Omit<ServiceCategory, "id" | "createdAt" | "updatedAt">> } >({
+    updateServiceCategory: builder.mutation< ServiceCategory,{ id: string; body:Partial<ServiceCategoryFormData> } >({
       query: ({ id, body }) => ({
-        url: `/services/service-category/${id}`,
+        url: `/services/category/${id}`,
         method: "PATCH",
         body,
       }),
       invalidatesTags: (_r, _e, { id }) => [
+        { type: "ServiceCategory", id },
+        { type: "ServiceCategory", id: "LIST" },
+      ],
+    }),
+
+    toggleServiceCategoryStatus: builder.mutation<ServiceCategory, string>({
+      query: (id) => ({
+        url: `/services/category/${id}/toggle-status`,
+        method: "PATCH",
+      }),
+      invalidatesTags: (_r, _e, id) => [
         { type: "ServiceCategory", id },
         { type: "ServiceCategory", id: "LIST" },
       ],
@@ -60,17 +72,6 @@ export const serviceCategoryApi = baseApi.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "ServiceCategory", id: "LIST" }],
-    }),
-
-    toggleServiceCategoryStatus: builder.mutation<ServiceCategory, string>({
-      query: (id) => ({
-        url: `/services/service-category/${id}/toggle-status`,
-        method: "PATCH",
-      }),
-      invalidatesTags: (_r, _e, id) => [
-        { type: "ServiceCategory", id },
-        { type: "ServiceCategory", id: "LIST" },
-      ],
     }),
   }),
   overrideExisting: false,
