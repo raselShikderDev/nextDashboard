@@ -103,3 +103,13 @@ export interface FilterParams {
   startDate?: string;
   endDate?: string;
 }
+
+
+export interface FormField {
+  name: string;        // machine key: "passportNumber"
+  label: string;       // display label: "Passport Number"
+  type: "text" | "number" | "select" | "textarea" | "date" | "email" | "file";
+  required?: boolean;
+  placeholder?: string;
+  options?: string[]; // for select fields: ["Option 1", "Option 2"]
+}

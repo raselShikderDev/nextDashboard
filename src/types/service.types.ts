@@ -34,3 +34,4 @@ export interface Service {
   category?: ServiceCategory;
   requests?: ServiceRequest[];
 }
+
