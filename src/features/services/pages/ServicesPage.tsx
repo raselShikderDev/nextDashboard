@@ -218,14 +218,14 @@ const handleEdit = async (formData: ServiceFormData) => {
           className="flex-1 max-w-sm"
         />
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="cursor-pointer w-36">
             <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem className="cursor-pointer" value="all">All Status</SelectItem>
+            <SelectItem className="cursor-pointer" value="active">Active</SelectItem>
+            <SelectItem className="cursor-pointer" value="inactive">Inactive</SelectItem>
           </SelectContent>
         </Select>
       </motion.div>

@@ -146,7 +146,7 @@ export const REQUEST_STATUS_OPTIONS = [
 export function RequestsPage() {
   const { page, limit, goToPage, changeLimit } = usePagination();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(
     null,
@@ -173,8 +173,7 @@ export function RequestsPage() {
     searchTerm: debouncedSearch || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
   });
-  
-  
+
   const [createRequest, { isLoading: isCreating }] = useCreateRequestMutation();
   const [updateRequest, { isLoading: isUpdating }] = useUpdateRequestMutation();
   const [claimRequest, { isLoading: isClaiming }] = useClaimRequestMutation();
@@ -189,8 +188,8 @@ export function RequestsPage() {
     useCancelRequestMutation();
 
   const handleCreate = async (formData: RequestFormData) => {
-    console.log({formData});
-    
+    console.log({ formData });
+
     try {
       await createRequest(formData).unwrap();
       // toast({ title: "Request created successfully" });
@@ -308,26 +307,26 @@ export function RequestsPage() {
           placeholder="Search requests..."
           className="flex-1 max-w-sm"
         />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
-            <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem className="hover:cursor-pointer" value="All">
-              All Status
-            </SelectItem>
-            {REQUEST_STATUS_OPTIONS.map((status) => (
-              <SelectItem
-                className="hover:cursor-pointer"
-                key={status.value}
-                value={status.value}
-              >
-                {status.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+       <Select value={statusFilter} onValueChange={setStatusFilter}>
+  <SelectTrigger className="cursor-pointer w-36">
+    <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
+    <SelectValue placeholder="Status" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem className="cursor-pointer" value="All">
+      All Status
+    </SelectItem>
+    {REQUEST_STATUS_OPTIONS.map((status) => (
+      <SelectItem
+        className="cursor-pointer"
+        key={status.value}
+        value={status.value}
+      >
+        {status.label}
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
       </motion.div>
       {showLoader ? (
         <LoadingSpinner />
