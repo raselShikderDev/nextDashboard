@@ -1,9 +1,20 @@
-import { Service, ServiceCategory } from "@/types/service.types";
+import { Service } from "@/types/service.types";
 import { baseApi } from "../../../app/baseApi";
 import type { PaginatedResponse, FilterParams } from "../../../types";
-
+console.log("🔥 servicesApi.ts MODULE LOADED — version 2");
 export const servicesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    createService: builder.mutation<Service, Partial<Service>>({
+      query: (body) => {
+        const url = "/services/create";
+        console.log("CREATE SERVICE URL:", url);
+        return { url, method: "POST", body };
+      },
+      //({ url: "/services/create",  method: "POST", body }),
+      transformResponse: (res: { data: Service }) => res.data,
+      invalidatesTags: [{ type: "Service", id: "LIST" }],
+    }),
+
     getAllServices: builder.query<PaginatedResponse<Service>, FilterParams>({
       query: (params = {}) => {
         const qs = new URLSearchParams();
@@ -29,37 +40,10 @@ export const servicesApi = baseApi.injectEndpoints({
           : [{ type: "Service", id: "LIST" }],
     }),
 
-    createServiceCategory: builder.mutation<
-      ServiceCategory,
-      Partial<ServiceCategory>
-    >({
-      query: (body) => ({
-        url: `/services/category-create`,
-        method: "POST",
-        body,
-      }),
-      transformResponse: (res: { data: ServiceCategory }) => res.data,
-      invalidatesTags: [{ type: "ServiceCategory", id: "LIST" }],
-    }),
-
-    getServiceCategories: builder.query<ServiceCategory[], void>({
-      query: () => ({ url: `/services/service-category`, method: "GET" }),
-      transformResponse: (res: { data: ServiceCategory[] }) => {
-        return res.data;
-      },
-      providesTags: [{ type: "ServiceCategory", id: "LIST" }],
-    }),
-
     getServiceById: builder.query<Service, string>({
       query: (id) => `/services/${id}`,
       transformResponse: (res: { data: Service }) => res.data,
       providesTags: (_r, _e, id) => [{ type: "Service", id }],
-    }),
-
-    createService: builder.mutation<Service, Partial<Service>>({
-      query: (body) => ({ url: "/services", method: "POST", body }),
-      transformResponse: (res: { data: Service }) => res.data,
-      invalidatesTags: [{ type: "Service", id: "LIST" }],
     }),
 
     updateService: builder.mutation<
@@ -104,7 +88,5 @@ export const {
   useCreateServiceMutation,
   useUpdateServiceMutation,
   useDeleteServiceMutation,
-  useGetServiceCategoriesQuery,
-  useCreateServiceCategoryMutation,
   useToggleServiceStatusMutation,
 } = servicesApi;

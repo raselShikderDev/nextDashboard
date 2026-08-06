@@ -89,7 +89,6 @@ export function ServiceCategoryForm({
 
   const selectedIcon = watch("icon");
 
-  // ✅ Proper async handler with error propagation
   const handleFormSubmit = async (data: ServiceCategoryFormData) => {
     await onSubmit(data);
   };

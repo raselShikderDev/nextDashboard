@@ -173,7 +173,7 @@ export function RequestsPage() {
     searchTerm: debouncedSearch || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
   });
-   const {data:serviceData, isLoading: isGetServiceLoading,isFetching: isGetServiceFetching,} = useGetAllServicesQuery({});
+  
   
   const [createRequest, { isLoading: isCreating }] = useCreateRequestMutation();
   const [updateRequest, { isLoading: isUpdating }] = useUpdateRequestMutation();

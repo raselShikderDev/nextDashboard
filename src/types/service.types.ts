@@ -23,7 +23,7 @@ export interface Service {
   features: string[];
   deliverables: string[];
   turnaround: string | null;
-  price: string;
+  price: number;
   currency: string;
   requiresQuotation: boolean;
   formSchema: Record<string, any>;

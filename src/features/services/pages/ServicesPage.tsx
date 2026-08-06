@@ -15,19 +15,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../components/ui/select";
-import {
-  useGetAllServicesQuery,
-  useCreateServiceMutation,
-  useUpdateServiceMutation,
-  useDeleteServiceMutation,
-  useToggleServiceStatusMutation,
-  useGetServiceCategoriesQuery,
-} from "../api/servicesApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useToast } from "../../../hooks/useToast";
 import { Service } from "@/types/service.types";
 import { usePagination } from "../../../hooks/usePagination";
 import { ServiceCard } from "../components/ServicesGrid";
+import {
+  useCreateServiceMutation,
+  useDeleteServiceMutation,
+  useGetAllServicesQuery,
+  useToggleServiceStatusMutation,
+  useUpdateServiceMutation,
+} from "../api/servicesApi";
 
 const MOCK_SERVICES: Service[] = Array.from({ length: 9 }, (_, i) => ({
   id: `svc-${i}`,
@@ -59,7 +58,7 @@ const MOCK_SERVICES: Service[] = Array.from({ length: 9 }, (_, i) => ({
   features: ["Enterprise support", "Custom integration", "24/7 monitoring"],
   deliverables: ["Source code", "Documentation", "Deployment guide"],
   turnaround: "3-5 business days",
-  price: String([2499, 1499, 1999, 299, 599, 3999, 2999, 799, 4499][i]),
+  price: Number([2499, 1499, 1999, 299, 599, 3999, 2999, 799, 4499][i]),
   currency: "BDT",
   requiresQuotation: false,
   formSchema: {},
@@ -100,36 +99,47 @@ export function ServicesPage() {
   const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();
   const [toggleStatus] = useToggleServiceStatusMutation();
 
-  const handleCreate = async (formData: ServiceFormData) => {
-    try {
-      await createService({
-        ...formData,
-        price: String(formData.price),
-      } as Partial<Service>).unwrap();
-      toast({ title: "Service created successfully" });
-      setIsFormOpen(false);
-    } catch {
-      toast({ variant: "destructive", title: "Failed to create service" });
-    }
+ const handleCreate = async (formData: ServiceFormData) => {
+  const payload = {
+    ...formData,
+    slug: formData.name
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-"),
+    price: Number(formData.price),
+    formSchema: Object.values(formData.formSchema) ?? [], 
   };
 
-  const handleEdit = async (formData: ServiceFormData) => {
-    if (!selectedService) return;
-    try {
-      await updateService({
-        id: selectedService.id,
-        body: {
-          ...formData,
-          price: String(formData.price),
-        } as Partial<Service>,
-      }).unwrap();
-      toast({ title: "Service updated successfully" });
-      setSelectedService(null);
-      setIsFormOpen(false);
-    } catch {
-      toast({ variant: "destructive", title: "Failed to update service" });
-    }
+  try {
+    await createService(payload as Partial<Service>).unwrap();
+    // ...
+  } catch (err: any) { /* ... */ }
+};
+
+const handleEdit = async (formData: ServiceFormData) => {
+  if (!selectedService) return;
+
+  const payload = {
+    ...formData,
+    slug: formData.name
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-"),
+    price: Number(formData.price),
+    formSchema: Object.values(formData.formSchema) ?? [], 
   };
+
+  try {
+    await updateService({
+      id: selectedService.id,
+      body: payload as Partial<Service>,
+    }).unwrap();
+    // ...
+  } catch (err: any) {console.log(err);
+   }
+};
 
   const handleDelete = async () => {
     if (!deleteTarget) return;

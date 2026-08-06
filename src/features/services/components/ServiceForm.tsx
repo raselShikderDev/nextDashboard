@@ -35,6 +35,8 @@ const serviceSchema = z.object({
   requiresQuotation: z.boolean().default(false),
   isActive: z.boolean().default(true),
   sortOrder: z.coerce.number().min(0).default(0),
+  slug: z.string().optional(), 
+  formSchema: z.record(z.any()).default({}),
 });
 
 export type ServiceFormData = z.infer<typeof serviceSchema>;
