@@ -38,7 +38,7 @@ export function PaymentsPage() {
   const { data: displayData, isLoading } = useGetPaymentsQuery({
     page,
     limit,
-    search: debouncedSearch || undefined,
+    searchTerm: debouncedSearch || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
   });
 
