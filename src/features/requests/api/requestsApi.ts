@@ -100,10 +100,7 @@ export const requestsApi = baseApi.injectEndpoints({
       ],
     }),
 
-    cancelRequest: builder.mutation<
-      ServiceRequest,
-      { id: string; notes?: string }
-    >({
+    cancelRequest: builder.mutation<ServiceRequest, { id: string; notes?: string } >({
       query: ({ id, notes }) => ({
         url: `/requests/cancel/${id}`,
         method: "PATCH",
@@ -115,6 +112,10 @@ export const requestsApi = baseApi.injectEndpoints({
         { type: "Request", id: "LIST" },
       ],
     }),
+    getRequestByNo: builder.query<any, { requestNo: string; email: string }>({
+  query: ({ requestNo, email }) =>
+    `/track?requestNo=${encodeURIComponent(requestNo)}&email=${encodeURIComponent(email)}`,
+}),
   }),
   overrideExisting: false,
 });
@@ -123,6 +124,7 @@ export const {
   useGetRequestsQuery,
   useGetRequestByIdQuery,
   useCreateRequestMutation,
+  useLazyGetRequestByNoQuery,
   useUpdateRequestMutation,
   useClaimRequestMutation,
   useApproveRequestMutation,
