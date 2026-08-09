@@ -156,17 +156,17 @@ export function PaymentsPage() {
         />
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-40 cursor-pointer">
             <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
             <SelectValue placeholder="Status" />
           </SelectTrigger>
 
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="SUBMITTED">Submitted</SelectItem>
-            <SelectItem value="VERIFIED">Verified</SelectItem>
-            <SelectItem value="REJECTED">Rejected</SelectItem>
-            <SelectItem value="REFUNDED">Refunded</SelectItem>
+            <SelectItem className="cursor-pointer" value="all">All Status</SelectItem>
+            <SelectItem className="cursor-pointer" value="SUBMITTED">Submitted</SelectItem>
+            <SelectItem className="cursor-pointer" value="VERIFIED">Verified</SelectItem>
+            <SelectItem className="cursor-pointer" value="REJECTED">Rejected</SelectItem>
+            <SelectItem className="cursor-pointer" value="REFUNDED">Refunded</SelectItem>
           </SelectContent>
         </Select>
       </motion.div>

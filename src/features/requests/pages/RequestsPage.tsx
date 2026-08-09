@@ -171,7 +171,7 @@ export function RequestsPage() {
     page,
     limit,
     searchTerm: debouncedSearch || undefined,
-    status: statusFilter !== "all" ? statusFilter : undefined,
+    status: statusFilter !== "" ? statusFilter : undefined,
   });
 
   const [createRequest, { isLoading: isCreating }] = useCreateRequestMutation();
@@ -313,7 +313,7 @@ export function RequestsPage() {
     <SelectValue placeholder="Status" />
   </SelectTrigger>
   <SelectContent>
-    <SelectItem className="cursor-pointer" value="All">
+    <SelectItem className="cursor-pointer" value="">
       All Status
     </SelectItem>
     {REQUEST_STATUS_OPTIONS.map((status) => (
