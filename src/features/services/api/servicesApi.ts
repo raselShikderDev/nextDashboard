@@ -1,7 +1,7 @@
 import { Service } from "@/types/service.types";
 import { baseApi } from "../../../app/baseApi";
 import type { PaginatedResponse, FilterParams } from "../../../types";
-console.log("🔥 servicesApi.ts MODULE LOADED — version 2");
+
 export const servicesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createService: builder.mutation<Service, Partial<Service>>({

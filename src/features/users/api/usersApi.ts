@@ -7,14 +7,22 @@ export const usersApi = baseApi.injectEndpoints({
     getUsers: builder.query<PaginatedResponse<User>, FilterParams>({
       query: (params = {}) => {
         const qs = new URLSearchParams();
-        Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== "") qs.set(k, String(v)); });
-        return `/users?${qs.toString()}`;
+        Object.entries(params).forEach(([k, v]) => {
+          if (v !== undefined && v !== "") qs.set(k, String(v));
+        });
+        return `/user?${qs.toString()}`;
       },
-      transformResponse: (res: { data: PaginatedResponse<User> }) => res.data,
-      providesTags: (result) => result ? [...result.data.map(({ id }) => ({ type: "User" as const, id })), { type: "User", id: "LIST" }] : [{ type: "User", id: "LIST" }],
+      transformResponse: (res:  PaginatedResponse<User> ) => res,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({ type: "User" as const, id })),
+              { type: "User", id: "LIST" },
+            ]
+          : [{ type: "User", id: "LIST" }],
     }),
-    
-     getMe: builder.query<User, void>({
+
+    getMe: builder.query<User, void>({
       query: () => ({
         url: "/user/me",
         method: "GET",
@@ -55,4 +63,12 @@ export const usersApi = baseApi.injectEndpoints({
   overrideExisting: false,
 });
 
-export const { useGetUsersQuery, useGetUserByIdQuery, useCreateUserMutation, useUpdateUserMutation, useDeleteUserMutation, useToggleUserStatusMutation, useGetMeQuery } = usersApi;
+export const {
+  useGetUsersQuery,
+  useGetUserByIdQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
+  useToggleUserStatusMutation,
+  useGetMeQuery,
+} = usersApi;

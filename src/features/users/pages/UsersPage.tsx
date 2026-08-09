@@ -39,34 +39,36 @@ const NAMES = [
   "Isla Wilson",
   "Jack Moore",
 ];
-const MOCK_USERS: User[] = Array.from({ length: 10 }, (_, i) => ({
-  id: `user-${i}`,
-  name: NAMES[i],
-  email: `user${i}@example.com`,
-  role: (["admin", "manager", "user", "user", "user"] as const)[i % 5],
-  department: ["Engineering", "Design", "Marketing", "Sales", "HR"][i % 5],
-  phone: `+1 555 000 ${String(i).padStart(4, "0")}`,
-  isActive: i % 5 !== 3,
-  createdAt: new Date(Date.now() - i * 86400000 * 30).toISOString(),
-  updatedAt: new Date().toISOString(),
-}));
+// const MOCK_USERS: User[] = Array.from({ length: 10 }, (_, i) => ({
+//   id: `user-${i}`,
+//   name: NAMES[i],
+//   email: `user${i}@example.com`,
+//   role: (["admin", "manager", "user", "user", "user"] as const)[i % 5],
+//   department: ["Engineering", "Design", "Marketing", "Sales", "HR"][i % 5],
+//   phone: `+1 555 000 ${String(i).padStart(4, "0")}`,
+//   isActive: i % 5 !== 3,
+//   createdAt: new Date(Date.now() - i * 86400000 * 30).toISOString(),
+//   updatedAt: new Date().toISOString(),
+// }));
 
 export function UsersPage() {
-  // const { toast } = useToast();
+
   const { page, limit, goToPage, changeLimit } = usePagination();
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
 
   const debouncedSearch = useDebounce(search);
-  const { data, isLoading } = useGetUsersQuery({
+  const { data:usersData, isLoading } = useGetUsersQuery({
     page,
     limit,
-    search: debouncedSearch || undefined,
-    status: roleFilter !== "all" ? roleFilter : undefined,
+    searchTerm: debouncedSearch || undefined,
+    status: roleFilter !== "" ? roleFilter : undefined,
   });
+  console.log({usersData});
+  
   const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
@@ -81,6 +83,7 @@ export function UsersPage() {
       // toast({ variant: "destructive", title: "Failed to create user" });
     }
   };
+
   const handleEdit = async (formData: UserFormData) => {
     if (!selectedUser) return;
     try {
@@ -92,6 +95,7 @@ export function UsersPage() {
       // toast({ variant: "destructive", title: "Failed to update user" });
     }
   };
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
@@ -99,9 +103,10 @@ export function UsersPage() {
       // toast({ title: "User deleted" });
       setDeleteTarget(null);
     } catch {
-      toast({ variant: "destructive", title: "Failed to delete user" });
+      // toast({ variant: "destructive", title: "Failed to delete user" });
     }
   };
+  
   const handleToggleStatus = async (user: User) => {
     try {
       await toggleStatus(user.id).unwrap();
@@ -109,14 +114,6 @@ export function UsersPage() {
     } catch {
       // toast({ variant: "destructive", title: "Failed to update user status" });
     }
-  };
-
-  const displayData = data ?? {
-    data: MOCK_USERS,
-    total: 52,
-    page: 1,
-    limit: 10,
-    totalPages: 6,
   };
 
   return (
@@ -153,16 +150,17 @@ export function UsersPage() {
             <SelectValue placeholder="Role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="manager">Manager</SelectItem>
-            <SelectItem value="user">User</SelectItem>
+            <SelectItem value="">All Roles</SelectItem>
+            <SelectItem value="ADMIN">Admin</SelectItem>
+            <SelectItem value="MANAGER">Manager</SelectItem>
+            <SelectItem value="USER">User</SelectItem>
+            <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
           </SelectContent>
         </Select>
       </motion.div>
       <UsersTable
-        data={displayData.data}
-        total={displayData.total}
+        data={usersData?.data || []}
+        total={usersData?.meta?.total || 1}
         page={page}
         limit={limit}
         isLoading={isLoading}
@@ -190,7 +188,7 @@ export function UsersPage() {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Delete User"
-        description={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
+        description={`Are you sure you want to delete "${deleteTarget?.userDetails?.name}"? This action cannot be undone.`}
         onConfirm={handleDelete}
         isLoading={isDeleting}
         confirmLabel="Delete"
