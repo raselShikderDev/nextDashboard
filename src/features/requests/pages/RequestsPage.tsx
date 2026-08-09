@@ -310,7 +310,7 @@ export function RequestsPage() {
        <Select value={statusFilter} onValueChange={setStatusFilter}>
   <SelectTrigger className="cursor-pointer w-36">
     <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
-    <SelectValue placeholder="Status" />
+    <SelectValue placeholder="Select Status" />
   </SelectTrigger>
   <SelectContent>
     <SelectItem className="cursor-pointer" value="">

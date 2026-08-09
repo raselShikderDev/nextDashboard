@@ -208,7 +208,7 @@ export function ServiceCategoriesPage() {
         >
           <SelectTrigger className="w-36">
             <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
-            <SelectValue className="cursor-pointer" placeholder="Status" />
+            <SelectValue className="cursor-pointer" placeholder="Select Status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem className="cursor-pointer" value="all">

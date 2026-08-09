@@ -27,29 +27,6 @@ import { usePagination } from "../../../hooks/usePagination";
 import type { User } from "../../../types";
 import type { UserFormData } from "../../../lib/validators";
 
-const NAMES = [
-  "Alice Johnson",
-  "Bob Smith",
-  "Carol White",
-  "David Lee",
-  "Eva Martinez",
-  "Frank Brown",
-  "Grace Kim",
-  "Henry Davis",
-  "Isla Wilson",
-  "Jack Moore",
-];
-// const MOCK_USERS: User[] = Array.from({ length: 10 }, (_, i) => ({
-//   id: `user-${i}`,
-//   name: NAMES[i],
-//   email: `user${i}@example.com`,
-//   role: (["admin", "manager", "user", "user", "user"] as const)[i % 5],
-//   department: ["Engineering", "Design", "Marketing", "Sales", "HR"][i % 5],
-//   phone: `+1 555 000 ${String(i).padStart(4, "0")}`,
-//   isActive: i % 5 !== 3,
-//   createdAt: new Date(Date.now() - i * 86400000 * 30).toISOString(),
-//   updatedAt: new Date().toISOString(),
-// }));
 
 export function UsersPage() {
 
@@ -141,13 +118,13 @@ export function UsersPage() {
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search users..."
+          placeholder="Search users by email..."
           className="flex-1 max-w-sm"
         />
         <Select value={roleFilter} onValueChange={setRoleFilter}>
           <SelectTrigger className="w-36">
             <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
-            <SelectValue placeholder="Role" />
+            <SelectValue placeholder="Select Role" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">All Roles</SelectItem>

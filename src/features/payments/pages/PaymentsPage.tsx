@@ -158,7 +158,7 @@ export function PaymentsPage() {
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-40 cursor-pointer">
             <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder="Select Status" />
           </SelectTrigger>
 
           <SelectContent>
