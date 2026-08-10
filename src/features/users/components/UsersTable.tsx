@@ -146,13 +146,13 @@ export function UsersTable({
               <Eye className="w-4 h-4 mr-2" />
               View
             </DropdownMenuItem>
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               className="cursor-pointer"
               onClick={() => onEdit(row)}
             >
               <Pencil className="w-4 h-4 mr-2" />
               Edit
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuItem
               className="cursor-pointer"
               onClick={() => onToggleStatus(row)}
@@ -170,13 +170,13 @@ export function UsersTable({
               )}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               className="cursor-pointer text-destructive focus:text-destructive"
               onClick={() => onDelete(row)}
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Delete
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       ),

@@ -110,7 +110,7 @@ export function UsersPage() {
             }}
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add User
+            Add Managers
           </Button>
         }
       />

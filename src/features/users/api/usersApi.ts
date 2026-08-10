@@ -62,7 +62,7 @@ export const usersApi = baseApi.injectEndpoints({
     }),
 
     toggleUserStatus: builder.mutation<User, string>({
-      query: (id) => ({ url: `/users/${id}/toggle-status`, method: "PATCH" }),
+      query: (id) => ({ url: `/user/toggle-status/${id}`, method: "PATCH" }),
       transformResponse: (res: { data: User }) => res.data,
       invalidatesTags: (_r, _e, id) => [{ type: "User", id }],
     }),
