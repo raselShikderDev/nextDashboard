@@ -1,6 +1,7 @@
 import { ApiResponse } from "@/features/auth/api/authApi";
 import { baseApi } from "../../../app/baseApi";
 import type { User, PaginatedResponse, FilterParams } from "../../../types";
+import { StaffFormData } from "../components/CreateStaffForm";
 
 export const usersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -12,7 +13,7 @@ export const usersApi = baseApi.injectEndpoints({
         });
         return `/user?${qs.toString()}`;
       },
-      transformResponse: (res:  PaginatedResponse<User> ) => res,
+      transformResponse: (res: PaginatedResponse<User>) => res,
       providesTags: (result) =>
         result
           ? [
@@ -43,6 +44,12 @@ export const usersApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "User", id: "LIST" }],
     }),
 
+    createStaff: builder.mutation<User, StaffFormData>({
+  query: (body) => ({ url: "/user/create-staff", method: "POST", body }),
+  transformResponse: (res: { data: User }) => res.data,
+  invalidatesTags: [{ type: "User", id: "LIST" }],
+}),
+
     updateUser: builder.mutation<User, { id: string; body: Partial<User> }>({
       query: ({ id, body }) => ({ url: `/users/${id}`, method: "PATCH", body }),
       transformResponse: (res: { data: User }) => res.data,
@@ -71,4 +78,5 @@ export const {
   useDeleteUserMutation,
   useToggleUserStatusMutation,
   useGetMeQuery,
+  useCreateStaffMutation,
 } = usersApi;

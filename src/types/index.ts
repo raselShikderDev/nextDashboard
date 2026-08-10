@@ -1,4 +1,4 @@
-import { PaymentStatus, Role } from "./enums.types";
+import { Role } from "./enums.types";
 
 export interface UserDetails {
   id: string;
@@ -113,3 +113,5 @@ export interface FormField {
   placeholder?: string;
   options?: string[]; // for select fields: ["Option 1", "Option 2"]
 }
+
+

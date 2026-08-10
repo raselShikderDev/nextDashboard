@@ -5,7 +5,6 @@ import { PageWrapper } from "../../../layouts/PageWrapper";
 import { PageHeader } from "../../../components/PageHeader";
 import { SearchInput } from "../../../components/SearchInput";
 import { UsersTable } from "../components/UsersTable";
-import { UserForm } from "../components/UserForm";
 import { ConfirmDialog } from "../../../components/ConfirmDialog";
 import { Button } from "../../../components/ui/button";
 import {
@@ -17,19 +16,17 @@ import {
 } from "../../../components/ui/select";
 import {
   useGetUsersQuery,
-  useCreateUserMutation,
+  useCreateStaffMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
   useToggleUserStatusMutation,
 } from "../api/usersApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { usePagination } from "../../../hooks/usePagination";
+import { CreateStaffForm, type StaffFormData } from "../components/CreateStaffForm";
 import type { User } from "../../../types";
-import type { UserFormData } from "../../../lib/validators";
-
 
 export function UsersPage() {
-
   const { page, limit, goToPage, changeLimit } = usePagination();
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
@@ -38,38 +35,35 @@ export function UsersPage() {
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
 
   const debouncedSearch = useDebounce(search);
-  const { data:usersData, isLoading } = useGetUsersQuery({
+  const { data: usersData, isLoading } = useGetUsersQuery({
     page,
     limit,
     searchTerm: debouncedSearch || undefined,
     status: roleFilter !== "" ? roleFilter : undefined,
   });
-  console.log({usersData});
-  
-  const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
+
+  const [CreateStaff, { isLoading: isCreating }] = useCreateStaffMutation();
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
   const [toggleStatus] = useToggleUserStatusMutation();
 
-  const handleCreate = async (formData: UserFormData) => {
+  const handleCreate = async (formData: StaffFormData) => {
     try {
-      await createUser(formData).unwrap();
-      // toast({ title: "User created successfully" });
+      await CreateStaff(formData).unwrap();
       setIsFormOpen(false);
-    } catch {
-      // toast({ variant: "destructive", title: "Failed to create user" });
+    } catch (err: any) {
+      console.error(err);
     }
   };
 
-  const handleEdit = async (formData: UserFormData) => {
+  const handleEdit = async (formData: StaffFormData) => {
     if (!selectedUser) return;
     try {
       await updateUser({ id: selectedUser.id, body: formData }).unwrap();
-      // toast({ title: "User updated successfully" });
       setSelectedUser(null);
       setIsFormOpen(false);
-    } catch {
-      // toast({ variant: "destructive", title: "Failed to update user" });
+    } catch (err: any) {
+      console.error(err);
     }
   };
 
@@ -77,21 +71,28 @@ export function UsersPage() {
     if (!deleteTarget) return;
     try {
       await deleteUser(deleteTarget.id).unwrap();
-      // toast({ title: "User deleted" });
       setDeleteTarget(null);
     } catch {
-      // toast({ variant: "destructive", title: "Failed to delete user" });
+      // error handled by RTK
     }
   };
-  
+
   const handleToggleStatus = async (user: User) => {
     try {
       await toggleStatus(user.id).unwrap();
-      // toast({ title: `User ${user.isActive ? "deactivated" : "activated"}` });
     } catch {
-      // toast({ variant: "destructive", title: "Failed to update user status" });
+      // error handled by RTK
     }
   };
+
+  const staffDefaultValues = selectedUser
+    ? {
+        name: selectedUser.userDetails?.name || "",
+        email: selectedUser.email || "",
+        phone: selectedUser.userDetails?.phone || "",
+        role: selectedUser.role,
+      }
+    : undefined;
 
   return (
     <PageWrapper>
@@ -135,6 +136,7 @@ export function UsersPage() {
           </SelectContent>
         </Select>
       </motion.div>
+
       <UsersTable
         data={usersData?.data || []}
         total={usersData?.meta?.total || 1}
@@ -150,22 +152,24 @@ export function UsersPage() {
         onDelete={setDeleteTarget}
         onToggleStatus={handleToggleStatus}
       />
-      <UserForm
+
+      <CreateStaffForm
         open={isFormOpen}
         onOpenChange={(open) => {
           if (!open) setSelectedUser(null);
           setIsFormOpen(open);
         }}
         onSubmit={selectedUser ? handleEdit : handleCreate}
-        defaultValues={selectedUser ?? undefined}
+        defaultValues={staffDefaultValues as any} 
         isLoading={isCreating || isUpdating}
         mode={selectedUser ? "edit" : "create"}
       />
+
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Delete User"
-        description={`Are you sure you want to delete "${deleteTarget?.userDetails?.name}"? This action cannot be undone.`}
+        description={`Are you sure you want to delete "${deleteTarget?.userDetails?.name || deleteTarget?.email}"? This action cannot be undone.`}
         onConfirm={handleDelete}
         isLoading={isDeleting}
         confirmLabel="Delete"
