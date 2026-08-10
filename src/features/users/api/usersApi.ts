@@ -45,10 +45,10 @@ export const usersApi = baseApi.injectEndpoints({
     }),
 
     createStaff: builder.mutation<User, StaffFormData>({
-  query: (body) => ({ url: "/user/create-staff", method: "POST", body }),
-  transformResponse: (res: { data: User }) => res.data,
-  invalidatesTags: [{ type: "User", id: "LIST" }],
-}),
+      query: (body) => ({ url: "/user/create-staff", method: "POST", body }),
+      transformResponse: (res: { data: User }) => res.data,
+      invalidatesTags: [{ type: "User", id: "LIST" }],
+    }),
 
     updateUser: builder.mutation<User, { id: string; body: Partial<User> }>({
       query: ({ id, body }) => ({ url: `/users/${id}`, method: "PATCH", body }),
