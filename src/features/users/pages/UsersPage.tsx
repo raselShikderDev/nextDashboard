@@ -25,12 +25,15 @@ import { useDebounce } from "../../../hooks/useDebounce";
 import { usePagination } from "../../../hooks/usePagination";
 import { CreateStaffForm, type StaffFormData } from "../components/CreateStaffForm";
 import type { User } from "../../../types";
+import { UserViewCard } from "../components/UserViewCard";
 
 export function UsersPage() {
   const { page, limit, goToPage, changeLimit } = usePagination();
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [viewTarget, setViewTarget] = useState<User | null>(null);
+
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
 
@@ -140,6 +143,8 @@ export function UsersPage() {
       <UsersTable
         data={usersData?.data || []}
         total={usersData?.meta?.total || 1}
+          onView={setViewTarget}
+
         page={page}
         limit={limit}
         isLoading={isLoading}
@@ -174,6 +179,11 @@ export function UsersPage() {
         isLoading={isDeleting}
         confirmLabel="Delete"
       />
+      <UserViewCard
+  user={viewTarget}
+  open={!!viewTarget}
+  onOpenChange={(open) => !open && setViewTarget(null)}
+/>
     </PageWrapper>
   );
 }

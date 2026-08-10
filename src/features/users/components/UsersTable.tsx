@@ -5,6 +5,7 @@ import {
   ShieldCheck,
   UserX,
   UserCheck,
+  Eye,
 } from "lucide-react";
 import { DataTable, type Column } from "../../../components/DataTable";
 import { Button } from "../../../components/ui/button";
@@ -24,11 +25,13 @@ import {
 import type { User } from "../../../types";
 import { formatDate, getInitials } from "@/app/helpers/helpers";
 
-const roleConfig = {
-  admin:
+const roleConfig: Record<string, string> = {
+  ADMIN:
     "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-  manager: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  user: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  MANAGER: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  USER: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  SUPER_ADMIN:
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
 };
 
 interface UsersTableProps {
@@ -39,6 +42,7 @@ interface UsersTableProps {
   isLoading: boolean;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
+  onView: (u: User) => void;      // ✅ NEW
   onEdit: (u: User) => void;
   onDelete: (u: User) => void;
   onToggleStatus: (u: User) => void;
@@ -52,6 +56,7 @@ export function UsersTable({
   isLoading,
   onPageChange,
   onLimitChange,
+  onView,
   onEdit,
   onDelete,
   onToggleStatus,
@@ -63,13 +68,13 @@ export function UsersTable({
       cell: (row) => (
         <div className="flex items-center gap-3">
           <Avatar className="w-9 h-9">
-            <AvatarImage src={row.userDetails.avatarUrl || ""} />
+            <AvatarImage src={row.userDetails?.avatarUrl || ""} />
             <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
-              {getInitials(row?.userDetails.name)}
+              {getInitials(row.userDetails?.name || row.email)}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium">{row?.userDetails.name}</p>
+            <p className="text-sm font-medium">{row.userDetails?.name || "—"}</p>
             <p className="text-xs text-muted-foreground">{row.email}</p>
           </div>
         </div>
@@ -81,10 +86,10 @@ export function UsersTable({
       cell: (row) => (
         <Badge
           variant="outline"
-          className={`capitalize text-xs ${roleConfig[row.role]}`}
+          className={`capitalize text-xs ${roleConfig[row.role] || roleConfig.USER}`}
         >
           <ShieldCheck className="w-3 h-3 mr-1" />
-          {row.role}
+          {row.role.toLowerCase()}
         </Badge>
       ),
     },
@@ -105,6 +110,15 @@ export function UsersTable({
       ),
     },
     {
+      key: "phone",
+      header: "Phone",
+      cell: (row) => (
+        <span className="text-sm text-muted-foreground">
+          {row.userDetails?.phone || "—"}
+        </span>
+      ),
+    },
+    {
       key: "createdAt",
       header: "Joined",
       cell: (row) => (
@@ -120,16 +134,29 @@ export function UsersTable({
       cell: (row) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit(row)}>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => onView(row)}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => onEdit(row)}
+            >
               <Pencil className="w-4 h-4 mr-2" />
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onToggleStatus(row)}>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => onToggleStatus(row)}
+            >
               {row.isActive ? (
                 <>
                   <UserX className="w-4 h-4 mr-2" />
@@ -144,7 +171,7 @@ export function UsersTable({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
+              className="cursor-pointer text-destructive focus:text-destructive"
               onClick={() => onDelete(row)}
             >
               <Trash2 className="w-4 h-4 mr-2" />
@@ -155,6 +182,7 @@ export function UsersTable({
       ),
     },
   ];
+
   return (
     <DataTable
       columns={columns}
