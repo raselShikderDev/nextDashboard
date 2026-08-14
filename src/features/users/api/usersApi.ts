@@ -28,7 +28,10 @@ export const usersApi = baseApi.injectEndpoints({
         url: "/user/me",
         method: "GET",
       }),
-      transformResponse: (response: ApiResponse<User>) => response.data,
+      transformResponse: (response: ApiResponse<User>) => {
+        console.log({response});
+        return response.data
+      },
       providesTags: ["User"],
     }),
 
@@ -66,6 +69,25 @@ export const usersApi = baseApi.injectEndpoints({
       transformResponse: (res: { data: User }) => res.data,
       invalidatesTags: (_r, _e, id) => [{ type: "User", id }],
     }),
+    updateProfile: builder.mutation< { data: User },{ name?: string; phone?: string } >({
+      query: (body) => ({
+        url: "/update-profile",
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    requestEmailChange: builder.mutation<
+      void,
+      { requestedEmail: string; reason?: string }
+    >({
+      query: (body) => ({
+        url: "/request-email-change",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -79,4 +101,6 @@ export const {
   useToggleUserStatusMutation,
   useGetMeQuery,
   useCreateStaffMutation,
+  useRequestEmailChangeMutation,
+  useUpdateProfileMutation,
 } = usersApi;
