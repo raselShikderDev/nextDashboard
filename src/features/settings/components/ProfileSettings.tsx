@@ -15,20 +15,21 @@ import { profileSchema, type ProfileFormData } from "../../../lib/validators";
 import { useAppDispatch } from "../../../app/hooks";
 import { updateUser } from "../../auth/slice/authSlice";
 import { useToast } from "../../../hooks/useToast";
-import { useGetMeQuery, useRequestEmailChangeMutation, useUpdateProfileMutation } from "@/features/users/api/usersApi";
-import { getInitials } from "@/app/helpers/helpers";
-
-
-
+import {
+  useGetMeQuery,
+  useRequestEmailChangeMutation,
+  useUpdateProfileMutation,
+} from "@/features/users/api/usersApi";
+import { getInitials } from "@/helpers/helpers";
 
 export function ProfileSettings() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
 
-  // ✅ Fetch full user profile (has userDetails)
+  //  Fetch full user profile (has userDetails)
   const { data: meData } = useGetMeQuery();
-  const user = meData; 
-console.log({meData});
+  const user = meData;
+  console.log({ meData });
 
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
   const [requestEmailChange, { isLoading: isRequestingEmail }] =
@@ -74,7 +75,7 @@ console.log({meData});
   };
 
   const handleEmailChangeRequest = async (
-    e: React.FormEvent<HTMLFormElement>
+    e: React.FormEvent<HTMLFormElement>,
   ) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -117,9 +118,12 @@ console.log({meData});
           <Avatar className="w-20 h-20">
             <AvatarImage src={user?.userDetails?.avatarUrl || ""} />
             <AvatarFallback className="text-xl bg-primary text-primary-foreground">
-              {user?.userDetails?.name
-                ? getInitials(user.userDetails.name || "AMI")
-                : "?"}
+           
+                {getInitials(
+                                user?.userDetails?.name ||
+                                  user?.userDetails?.name ||
+                                  "User",
+                              )}
             </AvatarFallback>
           </Avatar>
           <button
@@ -131,9 +135,7 @@ console.log({meData});
           </button>
         </div>
         <div>
-          <p className="font-medium">
-            {user?.userDetails?.name || "—"}
-          </p>
+          <p className="font-medium">{user?.userDetails?.name || "—"}</p>
           <p className="text-sm text-muted-foreground capitalize">
             {user?.role}
           </p>
@@ -145,15 +147,9 @@ console.log({meData});
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
-            <Input
-              id="name"
-              placeholder="Your name"
-              {...register("name")}
-            />
+            <Input id="name" placeholder="Your name" {...register("name")} />
             {errors.name && (
-              <p className="text-xs text-destructive">
-                {errors.name.message}
-              </p>
+              <p className="text-xs text-destructive">{errors.name.message}</p>
             )}
           </div>
 
@@ -168,9 +164,7 @@ console.log({meData});
         </div>
 
         <Button type="submit" disabled={!isDirty || isUpdating}>
-          {isUpdating && (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          )}
+          {isUpdating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
           Save Changes
         </Button>
       </form>
@@ -238,10 +232,6 @@ console.log({meData});
     </div>
   );
 }
-
-
-
-
 
 // import { useForm } from "react-hook-form";
 // import { zodResolver } from "@hookform/resolvers/zod";

@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 import type { RevenueData } from "../../../types";
-import { formatCurrency } from "@/app/helpers/helpers";
+import { formatCurrency } from "@/helpers/helpers";
 
 interface RevenueChartProps {
   data: RevenueData[];

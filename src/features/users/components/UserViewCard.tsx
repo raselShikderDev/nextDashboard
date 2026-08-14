@@ -4,12 +4,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../components/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "../../../components/ui/avatar";
 import { Badge } from "../../../components/ui/badge";
 import { Separator } from "../../../components/ui/separator";
-import { Mail, Phone, Shield, Calendar, MapPin, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  Shield,
+  Calendar,
+  MapPin,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import type { User } from "../../../types";
-import { formatDate, getInitials } from "@/app/helpers/helpers";
+import { formatDate, getInitials } from "@/helpers/helpers";
 
 interface UserViewCardProps {
   user: User | null;
@@ -48,8 +60,8 @@ export function UserViewCard({ user, open, onOpenChange }: UserViewCardProps) {
                     user.role === "ADMIN"
                       ? "bg-purple-100 text-purple-700"
                       : user.role === "MANAGER"
-                      ? "bg-blue-100 text-blue-700"
-                      : "bg-gray-100 text-gray-700"
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-gray-100 text-gray-700"
                   }`}
                 >
                   <Shield className="w-3 h-3 mr-1" />
@@ -115,9 +127,7 @@ export function UserViewCard({ user, open, onOpenChange }: UserViewCardProps) {
                 <Shield className="w-3.5 h-3.5" />
                 Verified
               </p>
-              <p className="font-medium">
-                {user.isVerified ? "Yes" : "No"}
-              </p>
+              <p className="font-medium">{user.isVerified ? "Yes" : "No"}</p>
             </div>
 
             <div className="space-y-1">
@@ -135,7 +145,9 @@ export function UserViewCard({ user, open, onOpenChange }: UserViewCardProps) {
 
           {/* Meta */}
           <div className="text-xs text-muted-foreground space-y-1">
-            <p>User ID: <span className="font-mono">{user.id}</span></p>
+            <p>
+              User ID: <span className="font-mono">{user.id}</span>
+            </p>
             <p>Last Updated: {formatDate(user.updatedAt)}</p>
           </div>
         </div>

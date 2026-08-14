@@ -18,7 +18,7 @@ import {
 } from "../../../components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
 import { useNavigate } from "react-router-dom";
-import { formatCurrency, formatDate, getInitials } from "@/app/helpers/helpers";
+import { formatCurrency, formatDate, getInitials } from "@/helpers/helpers";
 import { ServiceRequest } from "@/types/request.types";
 
 interface RequestsTableProps {

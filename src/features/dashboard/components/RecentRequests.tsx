@@ -10,7 +10,7 @@ import {
   formatRelativeTime,
   formatRole,
   getInitials,
-} from "@/app/helpers/helpers";
+} from "@/helpers/helpers";
 import { ServiceRequest } from "@/types/request.types";
 
 interface RecentRequestsProps {

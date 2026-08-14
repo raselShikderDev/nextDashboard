@@ -11,7 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import type { Notification } from "../../../types";
 import { cn } from "@/lib/utils";
-import { formatRelativeTime } from "@/app/helpers/helpers";
+import { formatRelativeTime } from "@/helpers/helpers";
 
 const typeStyles: Record<Notification["type"], string> = {
   info: "bg-blue-500",

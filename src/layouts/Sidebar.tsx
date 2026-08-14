@@ -118,7 +118,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 transition={{ duration: 0.15 }}
                 className="font-bold text-lg whitespace-nowrap"
               >
-                AdminPro
+                NextGen
               </motion.span>
             )}
           </AnimatePresence>

@@ -21,7 +21,7 @@ import {
 } from "../slice/notificationsSlice";
 import type { Notification } from "../../../types";
 import { cn } from "@/lib/utils";
-import { formatRelativeTime, generateId } from "@/app/helpers/helpers";
+import { formatRelativeTime, generateId } from "@/helpers/helpers";
 
 const typeConfig = {
   info: {

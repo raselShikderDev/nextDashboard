@@ -1,7 +1,7 @@
 import { type LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { StatsBadge } from "../../../components/StatsBadge";
-import { formatCurrency, formatNumber } from "@/app/helpers/helpers";
+import { formatCurrency, formatNumber } from "@/helpers/helpers";
 import { cn } from "@/lib/utils";
 
 interface StatsCardProps {

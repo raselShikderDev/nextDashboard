@@ -11,8 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "../../../components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
-import { formatCurrency, formatDate, getInitials } from "@/app/helpers/helpers";
 import { Payment } from "@/types/payment.types";
+import { formatCurrency, formatDate, getInitials } from "@/helpers/helpers";
 
 const methodLabels: Record<string, string> = {
   BKASH: "bKash",

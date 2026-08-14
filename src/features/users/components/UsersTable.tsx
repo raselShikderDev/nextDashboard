@@ -23,7 +23,7 @@ import {
   AvatarImage,
 } from "../../../components/ui/avatar";
 import type { User } from "../../../types";
-import { formatDate, getInitials } from "@/app/helpers/helpers";
+import { formatDate, getInitials } from "@/helpers/helpers";
 
 const roleConfig: Record<string, string> = {
   ADMIN:
@@ -42,7 +42,7 @@ interface UsersTableProps {
   isLoading: boolean;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
-  onView: (u: User) => void;      // ✅ NEW
+  onView: (u: User) => void; // ✅ NEW
   onEdit: (u: User) => void;
   onDelete: (u: User) => void;
   onToggleStatus: (u: User) => void;
@@ -74,7 +74,9 @@ export function UsersTable({
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium">{row.userDetails?.name || "—"}</p>
+            <p className="text-sm font-medium">
+              {row.userDetails?.name || "—"}
+            </p>
             <p className="text-xs text-muted-foreground">{row.email}</p>
           </div>
         </div>
@@ -134,7 +136,11 @@ export function UsersTable({
       cell: (row) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 cursor-pointer"
+            >
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
