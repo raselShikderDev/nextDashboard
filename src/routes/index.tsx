@@ -11,6 +11,8 @@ import { NotificationsPage } from "../features/notifications/pages/Notifications
 import { SettingsPage } from "../features/settings/pages/SettingsPage";
 import { ServiceCategoriesPage } from "@/features/services/pages/ServiceCategoriesPage";
 import { GuestRequestPage } from "@/features/requests/pages/GuestRequestPage";
+import { Role } from "@/types/enums";
+import { RoleGuard } from "./RoleGuard";
 
 function NotFound() {
   return (
@@ -36,6 +38,11 @@ function Unauthorized() {
   );
 }
 
+// Helper to wrap pages with role checks
+const allow = (element: React.ReactNode, roles: Role[]) => (
+  <RoleGuard allowedRoles={roles}>{element}</RoleGuard>
+);
+
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "requests/guest", element: <GuestRequestPage /> },
@@ -48,14 +55,43 @@ export const router = createBrowserRouter([
         element: <AdminLayout />,
         children: [
           { index: true, element: <Navigate to="/dashboard" replace /> },
-          { path: "dashboard", element: <DashboardPage /> },
-          { path: "requests", element: <RequestsPage /> },
-          { path: "payments", element: <PaymentsPage /> },
-          { path: "users", element: <UsersPage /> },
-          { path: "services", element: <ServicesPage /> },
-          { path: "services/categories", element: <ServiceCategoriesPage /> },
-          { path: "notifications", element: <NotificationsPage /> },
-          { path: "settings", element: <SettingsPage /> },
+
+          // All admin-level roles
+          {
+            path: "dashboard",
+            element: allow(<DashboardPage />, [Role.ADMIN, Role.MANAGER, Role.SUPER_ADMIN]),
+          },
+          {
+            path: "requests",
+            element: allow(<RequestsPage />, [Role.ADMIN, Role.MANAGER, Role.SUPER_ADMIN]),
+          },
+          {
+            path: "payments",
+            element: allow(<PaymentsPage />, [Role.ADMIN, Role.MANAGER, Role.SUPER_ADMIN]),
+          },
+          {
+            path: "notifications",
+            element: allow(<NotificationsPage />, [Role.ADMIN, Role.MANAGER, Role.SUPER_ADMIN]),
+          },
+          {
+            path: "settings",
+            element: allow(<SettingsPage />, [Role.ADMIN, Role.MANAGER, Role.SUPER_ADMIN]),
+          },
+
+          // Admin & Super Admin only
+          {
+            path: "users",
+            element: allow(<UsersPage />, [Role.ADMIN, Role.SUPER_ADMIN]),
+          },
+          {
+            path: "services",
+            element: allow(<ServicesPage />, [Role.ADMIN, Role.SUPER_ADMIN]),
+          },
+          {
+            path: "services/categories",
+            element: allow(<ServiceCategoriesPage />, [Role.ADMIN, Role.SUPER_ADMIN]),
+          },
+
           { path: "unauthorized", element: <Unauthorized /> },
           { path: "*", element: <NotFound /> },
         ],
