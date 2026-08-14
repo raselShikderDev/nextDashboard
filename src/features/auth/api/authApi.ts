@@ -2,7 +2,6 @@ import { LoginResponse } from "@/types/auth.types";
 import { baseApi } from "../../../app/baseApi";
 import type { LoginCredentials, User } from "../../../types";
 
-
 export interface ApiResponse<T> {
   success: boolean;
   message?: string;
@@ -36,13 +35,7 @@ export const authApi = baseApi.injectEndpoints({
         response.data,
     }),
 
-    changePassword: builder.mutation<
-      void,
-      {
-        currentPassword: string;
-        newPassword: string;
-      }
-    >({
+    changePassword: builder.mutation< void, { oldPassword: string; newPassword: string }>({
       query: (body) => ({
         url: "/auth/change-password",
         method: "POST",
