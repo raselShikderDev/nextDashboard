@@ -126,7 +126,7 @@ export function SecuritySettings() {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Shield className="w-4 h-4" />
@@ -175,7 +175,7 @@ export function SecuritySettings() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   );
 }

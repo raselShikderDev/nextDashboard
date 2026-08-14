@@ -10,8 +10,8 @@ import { cn } from "../../../lib/utils";
 const TABS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "security", label: "Security", icon: Shield },
-  { id: "notifications", label: "Notifications", icon: Bell },
-  { id: "appearance", label: "Appearance", icon: Palette },
+  // { id: "notifications", label: "Notifications", icon: Bell },
+  // { id: "appearance", label: "Appearance", icon: Palette },
 ];
 
 function NotificationPreferences() {
