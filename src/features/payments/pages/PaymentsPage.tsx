@@ -198,7 +198,7 @@ export function PaymentsPage() {
             <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
             <SelectValue placeholder="Method" />
           </SelectTrigger>
-          <SelectContent>
+          {/* <SelectContent>
             <SelectItem className="cursor-pointer" value="all">
               All Methods
             </SelectItem>
@@ -214,7 +214,7 @@ export function PaymentsPage() {
             <SelectItem className="cursor-pointer" value="CASH">
               Cash
             </SelectItem>
-          </SelectContent>
+          </SelectContent> */}
         </Select>
       </motion.div>
 

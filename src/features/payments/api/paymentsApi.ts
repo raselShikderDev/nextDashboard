@@ -10,6 +10,7 @@ export const paymentsApi = baseApi.injectEndpoints({
         Object.entries(params).forEach(([k, v]) => {
           if (v !== undefined && v !== "") qs.set(k, String(v));
         });
+        // return `/payment?${qs.toString()}`;
         return `/payment?${qs.toString()}`;
       },
       providesTags: (result) =>
@@ -25,24 +26,25 @@ export const paymentsApi = baseApi.injectEndpoints({
     }),
 
     getPaymentById: builder.query<Payment, string>({
-      query: (id) => `/payments/${id}`,
+      query: (id) => `/payment/${id}`,
       transformResponse: (res: { data: Payment }) => res.data,
       providesTags: (_r, _e, id) => [{ type: "Payment", id }],
     }),
 
     createPayment: builder.mutation<Payment, Partial<Payment>>({
-      query: (body) => ({ url: "/payments", method: "POST", body }),
+      query: (body) => ({ url: "/payment", method: "POST", body }),
       transformResponse: (res: { data: Payment }) => res.data,
       invalidatesTags: [{ type: "Payment", id: "LIST" }],
     }),
     getPaymentAnalytics: builder.query<PaymentAnalytics, void>({
-      query: () => "/payments/analytics",
+      query: () =>({url:"/payment/analytics", method: "GET"}),
+      transformErrorResponse:(res)=> res.data,
       providesTags: ["Payment"],
     }),
 
     verifyPayment: builder.mutation<  Payment, { id: string; adminNote?: string } >({
       query: ({ id, adminNote }) => ({
-        url: `/payments/verify/${id}`,
+        url: `/payment/verify/${id}`,
         method: "PATCH",
         body: { adminNote },
       }),
@@ -51,7 +53,7 @@ export const paymentsApi = baseApi.injectEndpoints({
 
     rejectPayment: builder.mutation<  Payment,  { id: string; rejectionReason: string; adminNote?:string }>({
       query: ({ id, rejectionReason, adminNote }) => ({
-        url: `/payments/reject/${id}`,
+        url: `/payment/reject/${id}`,
         method: "PATCH",
         body: { rejectionReason, adminNote },
       }),
@@ -59,7 +61,7 @@ export const paymentsApi = baseApi.injectEndpoints({
     }),
 
     deletePayment: builder.mutation<void, string>({
-      query: (id) => ({ url: `/payments/${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `/payment/${id}`, method: "DELETE" }),
       invalidatesTags: ["Payment"],
     }),
   }),
