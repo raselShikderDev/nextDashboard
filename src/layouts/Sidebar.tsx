@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Shield,
-  LogOut,
-  ChevronRight,
-  type LucideIcon,
-} from "lucide-react";
+import { Shield, LogOut, ChevronRight, type LucideIcon } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { logout } from "../features/auth/slice/authSlice";
@@ -24,6 +19,7 @@ import {
   PopoverTrigger,
 } from "../components/ui/popover";
 import { usePermission } from "@/hooks/usePermission";
+import { getInitials } from "@/helpers/helpers";
 
 const isPathActive = (pathname: string, to?: string) =>
   !!to && (pathname === to || pathname.startsWith(`${to}/`));
@@ -65,7 +61,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 transition={{ duration: 0.15 }}
                 className="font-bold text-lg whitespace-nowrap"
               >
-                AdminPro
+                NextStepGen
               </motion.span>
             )}
           </AnimatePresence>
@@ -78,7 +74,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
             if (children?.length) {
               const childActive = children.some((c) =>
-                isPathActive(location.pathname, c.path)
+                isPathActive(location.pathname, c.path),
               );
               const isOpen = openGroups[item.label] ?? childActive;
 
@@ -92,19 +88,27 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                           "flex w-full items-center justify-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer",
                           childActive
                             ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground",
                         )}
                       >
                         <Icon className="w-5 h-5 shrink-0" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="right" align="start" sideOffset={12} className="w-48 p-1.5">
+                    <PopoverContent
+                      side="right"
+                      align="start"
+                      sideOffset={12}
+                      className="w-48 p-1.5"
+                    >
                       <p className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         {item.label}
                       </p>
                       {children.map((child) => {
                         const ChildIcon = child.icon;
-                        const active = isPathActive(location.pathname, child.path);
+                        const active = isPathActive(
+                          location.pathname,
+                          child.path,
+                        );
                         return (
                           <NavLink
                             key={child.path}
@@ -113,7 +117,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                               "flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium transition-colors cursor-pointer",
                               active
                                 ? "bg-primary text-primary-foreground"
-                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground",
                             )}
                           >
                             <ChildIcon className="w-4 h-4 shrink-0" />
@@ -135,15 +139,17 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                       "flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer",
                       childActive
                         ? "bg-muted text-foreground"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                   >
                     <Icon className="w-5 h-5 shrink-0" />
-                    <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
+                    <span className="flex-1 text-left whitespace-nowrap">
+                      {item.label}
+                    </span>
                     <ChevronRight
                       className={cn(
                         "w-4 h-4 shrink-0 transition-transform duration-200",
-                        isOpen && "rotate-90"
+                        isOpen && "rotate-90",
                       )}
                     />
                   </button>
@@ -160,7 +166,10 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                         <div className="ml-[1.65rem] mt-1 space-y-1 border-l border-border pl-3">
                           {children.map((child) => {
                             const ChildIcon = child.icon;
-                            const active = isPathActive(location.pathname, child.path);
+                            const active = isPathActive(
+                              location.pathname,
+                              child.path,
+                            );
                             return (
                               <NavLink
                                 key={child.path}
@@ -169,11 +178,13 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                                   "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer",
                                   active
                                     ? "bg-primary text-primary-foreground shadow-sm"
-                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                                 )}
                               >
                                 <ChildIcon className="w-4 h-4 shrink-0" />
-                                <span className="whitespace-nowrap">{child.label}</span>
+                                <span className="whitespace-nowrap">
+                                  {child.label}
+                                </span>
                               </NavLink>
                             );
                           })}
@@ -195,7 +206,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative cursor-pointer",
                   isActive
                     ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
                 <Icon className="w-5 h-5 shrink-0" />
@@ -215,7 +226,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   <span
                     className={cn(
                       "absolute flex items-center justify-center text-xs font-bold rounded-full bg-destructive text-destructive-foreground",
-                      collapsed ? "top-1 right-1 w-4 h-4 text-[10px]" : "ml-auto w-5 h-5"
+                      collapsed
+                        ? "top-1 right-1 w-4 h-4 text-[10px]"
+                        : "ml-auto w-5 h-5",
                     )}
                   >
                     {unreadCount > 9 ? "9+" : unreadCount}
@@ -237,22 +250,29 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
         {/* Footer */}
         <div className="shrink-0 border-t border-border p-3 space-y-2">
-          <div className={cn("flex items-center gap-3 px-2 py-2 rounded-lg", collapsed && "justify-center")}>
+          <div
+            className={cn(
+              "flex items-center gap-3 px-2 py-2 rounded-lg",
+              collapsed && "justify-center",
+            )}
+          >
             <Avatar className="w-8 h-8 shrink-0">
-              <AvatarImage src={user?.userDetails?.avatarUrl || ""} />
+              <AvatarImage
+                src={user?.userDetails?.avatarUrl || ""}
+                alt={user?.userDetails?.name || user?.email}
+              />
               <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
-                {user?.userDetails?.name
-                  ?.split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .toUpperCase()
-                  .slice(0, 2) || "?"}
+                {getInitials(user?.userDetails?.name || user?.email)}
               </AvatarFallback>
             </Avatar>
             {!collapsed && (
               <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{user?.userDetails?.name || user?.email}</p>
-                <p className="text-xs text-muted-foreground capitalize truncate">{user?.role?.toLowerCase()}</p>
+                <p className="text-sm font-medium truncate">
+                  {user?.userDetails?.name || user?.email}
+                </p>
+                <p className="text-xs text-muted-foreground capitalize truncate">
+                  {user?.role?.toLowerCase()}
+                </p>
               </div>
             )}
           </div>
@@ -260,7 +280,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             variant="ghost"
             className={cn(
               "w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer",
-              collapsed && "justify-center px-2"
+              collapsed && "justify-center px-2",
             )}
             onClick={() => dispatch(logout())}
           >

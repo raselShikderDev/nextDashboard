@@ -36,8 +36,7 @@ export function ProtectedRoute({
   }
 
   if (
-    allowedRoles &&
-    !allowedRoles.includes(user.role)
+    allowedRoles && !allowedRoles.includes(user.role)
   ) {
     return <Navigate to="/unauthorized" replace />;
   }
