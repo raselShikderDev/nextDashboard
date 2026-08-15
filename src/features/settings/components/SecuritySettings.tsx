@@ -20,12 +20,17 @@ import {
   resetPasswordFormData,
   resetPasswordSchema,
 } from "../validators/zodvalidator";
+import { AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "../../../components/ui/alert";
+import { useAppSelector } from "../../../app/hooks";
 
 export function SecuritySettings() {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
   const [changePassword, { isLoading: isChanging }] =
     useChangePasswordMutation();
+    const user = useAppSelector((s) => s.auth.user);
+  const mustChange = user?.mustChangePassword === true;
 
   const {
     register,

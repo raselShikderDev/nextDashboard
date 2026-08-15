@@ -11,9 +11,10 @@ interface ConfirmDialogProps {
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: "destructive" | "default";
+  customContent?: React.ReactNode;
 }
 
-export function ConfirmDialog({ open, onOpenChange, title, description, onConfirm, isLoading, confirmLabel = "Confirm", cancelLabel = "Cancel", variant = "destructive" }: ConfirmDialogProps) {
+export function ConfirmDialog({ open, onOpenChange, title, description, onConfirm, isLoading, confirmLabel = "Confirm", cancelLabel = "Cancel", variant = "destructive", customContent }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>

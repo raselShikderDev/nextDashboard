@@ -1,4 +1,4 @@
-import { Payment } from "@/types/payment.types";
+import { Payment, PaymentAnalytics } from "@/types/payment.types";
 import { baseApi } from "../../../app/baseApi";
 import type { PaginatedResponse, FilterParams } from "../../../types";
 
@@ -35,29 +35,32 @@ export const paymentsApi = baseApi.injectEndpoints({
       transformResponse: (res: { data: Payment }) => res.data,
       invalidatesTags: [{ type: "Payment", id: "LIST" }],
     }),
+    getPaymentAnalytics: builder.query<PaymentAnalytics, void>({
+      query: () => "/payments/analytics",
+      providesTags: ["Payment"],
+    }),
 
-    updatePayment: builder.mutation<
-      Payment,
-      { id: string; body: Partial<Payment> }
-    >({
-      query: ({ id, body }) => ({
-        url: `/payments/${id}`,
+    verifyPayment: builder.mutation<  Payment, { id: string; adminNote?: string } >({
+      query: ({ id, adminNote }) => ({
+        url: `/payments/verify/${id}`,
         method: "PATCH",
-        body,
+        body: { adminNote },
       }),
-      transformResponse: (res: { data: Payment }) => res.data,
-      invalidatesTags: (_r, _e, { id }) => [{ type: "Payment", id }],
+      invalidatesTags: ["Payment"],
+    }),
+
+    rejectPayment: builder.mutation<  Payment,  { id: string; rejectionReason: string; adminNote?:string }>({
+      query: ({ id, rejectionReason, adminNote }) => ({
+        url: `/payments/reject/${id}`,
+        method: "PATCH",
+        body: { rejectionReason, adminNote },
+      }),
+      invalidatesTags: ["Payment"],
     }),
 
     deletePayment: builder.mutation<void, string>({
       query: (id) => ({ url: `/payments/${id}`, method: "DELETE" }),
-      invalidatesTags: [{ type: "Payment", id: "LIST" }],
-    }),
-
-    refundPayment: builder.mutation<Payment, string>({
-      query: (id) => ({ url: `/payments/${id}/refund`, method: "POST" }),
-      transformResponse: (res: { data: Payment }) => res.data,
-      invalidatesTags: (_r, _e, id) => [{ type: "Payment", id }],
+      invalidatesTags: ["Payment"],
     }),
   }),
   overrideExisting: false,
@@ -67,7 +70,8 @@ export const {
   useGetPaymentsQuery,
   useGetPaymentByIdQuery,
   useCreatePaymentMutation,
-  useUpdatePaymentMutation,
   useDeletePaymentMutation,
-  useRefundPaymentMutation,
+  useGetPaymentAnalyticsQuery,
+  useRejectPaymentMutation,
+  useVerifyPaymentMutation,
 } = paymentsApi;

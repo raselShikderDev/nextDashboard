@@ -27,3 +27,25 @@ export interface Payment {
   verifiedBy?: User | null;
   userDetails?: User | null;
 }
+
+
+export interface PaymentAnalytics {
+  totalPayments: number;
+  pendingPayments: number;
+  verifiedPayments: number;
+  rejectedPayments: number;
+  totalRevenue: number;
+  verifiedRevenue: number;
+  todayRevenue: number;
+  last7DaysRevenue: number;
+  last30DaysRevenue: number;
+  methodStats: Array<{
+    method: string;
+    _count: { method: number };
+    _sum: { amount: number };
+  }>;
+  monthlyRevenue: Array<{
+    month: string;
+    revenue: number;
+  }>;
+}

@@ -1,4 +1,4 @@
-import { RotateCcw, Trash2, MoreHorizontal } from "lucide-react";
+import { Eye, Trash2, MoreHorizontal, ShieldCheck, XCircle } from "lucide-react";
 import { DataTable, type Column } from "../../../components/DataTable";
 import { PaymentStatusBadge } from "./PaymentStatusBadge";
 import { Button } from "../../../components/ui/button";
@@ -10,9 +10,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../../components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
 import { Payment } from "@/types/payment.types";
-import { formatCurrency, formatDate, getInitials } from "@/helpers/helpers";
+import { formatCurrency, formatDate } from "@/helpers/helpers";
+import { usePermission } from "@/hooks/usePermission";
+import { Role } from "@/types/enums";
 
 const methodLabels: Record<string, string> = {
   BKASH: "bKash",
@@ -31,8 +32,10 @@ interface PaymentsTableProps {
   isLoading: boolean;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
+  onView: (payment: Payment) => void;
+  onVerify: (payment: Payment) => void;
+  onReject: (payment: Payment) => void;
   onDelete: (payment: Payment) => void;
-  onRefund: (payment: Payment) => void;
 }
 
 export function PaymentsTable({
@@ -43,9 +46,14 @@ export function PaymentsTable({
   isLoading,
   onPageChange,
   onLimitChange,
+  onView,
+  onVerify,
+  onReject,
   onDelete,
-  onRefund,
 }: PaymentsTableProps) {
+  const { hasRole } = usePermission();
+  const canManagePayments = hasRole(Role.ADMIN, Role.SUPER_ADMIN);
+
   const columns: Column<Payment>[] = [
     {
       key: "transactionId",
@@ -60,31 +68,16 @@ export function PaymentsTable({
       ),
     },
     {
-      key: "user",
-      header: "User",
+      key: "request",
+      header: "Request / Guest",
       cell: (row) => (
-        <div className="flex items-center gap-2.5">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-primary/10 text-primary text-xs">
-              {getInitials(
-                row.userDetails?.userDetails?.name ||
-                  row.userDetails?.userDetails?.name ||
-                  "User",
-              )}
-            </AvatarFallback>
-          </Avatar>
-
-          <div>
-            <p className="text-sm font-medium">
-              {row.userDetails?.userDetails?.name ||
-                row?.request?.guestName ||
-                "Unknown User"}
-            </p>
-
-            <p className="text-xs text-muted-foreground">
-              {row.userDetails?.email || row?.request?.guestEmail || "-"}
-            </p>
-          </div>
+        <div>
+          <p className="text-sm font-medium">
+            {row.request?.guestName || "Guest"}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {row.request?.requestNo || "—"} · {row.request?.guestEmail || "—"}
+          </p>
         </div>
       ),
     },
@@ -112,11 +105,11 @@ export function PaymentsTable({
       cell: (row) => <PaymentStatusBadge status={row.status} />,
     },
     {
-      key: "verifiedAt",
-      header: "Verified",
+      key: "senderNumber",
+      header: "Sender",
       cell: (row) => (
         <span className="text-sm text-muted-foreground">
-          {row.verifiedAt ? formatDate(row.verifiedAt) : "-"}
+          {row.senderNumber || "—"}
         </span>
       ),
     },
@@ -127,33 +120,56 @@ export function PaymentsTable({
       cell: (row) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 cursor-pointer"
+            >
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end">
-            {row.status === "VERIFIED" && (
-              <>
-                <DropdownMenuItem
-                  className="hover:cursor-pointer"
-                  onClick={() => onRefund(row)}
-                >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Refund Payment
-                </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => onView(row)}
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              View Details
+            </DropdownMenuItem>
 
+            {canManagePayments && row.status === "SUBMITTED" && (
+              <>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer text-green-600 focus:text-green-600"
+                  onClick={() => onVerify(row)}
+                >
+                  <ShieldCheck className="mr-2 h-4 w-4" />
+                  Verify Payment
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                  onClick={() => onReject(row)}
+                >
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Reject Payment
+                </DropdownMenuItem>
               </>
             )}
 
-            <DropdownMenuItem
-              onClick={() => onDelete(row)}
-              className="text-destructive focus:text-destructive hover:cursor-pointer"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Payment
-            </DropdownMenuItem>
+            {canManagePayments && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => onDelete(row)}
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Record
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       ),

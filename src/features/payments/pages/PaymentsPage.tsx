@@ -1,12 +1,17 @@
 import { useState } from "react";
-import { Filter, DollarSign, TrendingUp, Clock, XCircle } from "lucide-react";
+import { Filter, DollarSign, TrendingUp, Clock, XCircle, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { PageWrapper } from "../../../layouts/PageWrapper";
 import { PageHeader } from "../../../components/PageHeader";
 import { SearchInput } from "../../../components/SearchInput";
 import { PaymentsTable } from "../components/PaymentsTable";
+import { PaymentViewCard } from "../components/PaymentViewCard";
 import { ConfirmDialog } from "../../../components/ConfirmDialog";
 import { StatsCard } from "../../dashboard/components/StatsCard";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { Textarea } from "../../../components/ui/textarea";
+import { Label } from "../../../components/ui/label";
 import {
   Select,
   SelectContent,
@@ -16,8 +21,10 @@ import {
 } from "../../../components/ui/select";
 import {
   useGetPaymentsQuery,
+  useGetPaymentAnalyticsQuery,
+  useVerifyPaymentMutation,
+  useRejectPaymentMutation,
   useDeletePaymentMutation,
-  useRefundPaymentMutation,
 } from "../api/paymentsApi";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { usePagination } from "../../../hooks/usePagination";
@@ -30,8 +37,15 @@ export function PaymentsPage() {
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [methodFilter, setMethodFilter] = useState("all");
+
+  const [viewTarget, setViewTarget] = useState<Payment | null>(null);
+  const [verifyTarget, setVerifyTarget] = useState<Payment | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<Payment | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Payment | null>(null);
-  const [refundTarget, setRefundTarget] = useState<Payment | null>(null);
+
+  const [adminNote, setAdminNote] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const debouncedSearch = useDebounce(search);
 
@@ -42,62 +56,67 @@ export function PaymentsPage() {
     status: statusFilter !== "all" ? statusFilter : undefined,
   });
 
-  const [deletePayment, { isLoading: isDeleting }] = useDeletePaymentMutation();
+  const { data: analytics } = useGetPaymentAnalyticsQuery();
 
-  const [refundPayment, { isLoading: isRefunding }] =
-    useRefundPaymentMutation();
+  const [verifyPayment, { isLoading: isVerifying }] = useVerifyPaymentMutation();
+  const [rejectPayment, { isLoading: isRejecting }] = useRejectPaymentMutation();
+  const [deletePayment, { isLoading: isDeleting }] = useDeletePaymentMutation();
 
   const payments = displayData?.data ?? [];
 
-  const totalRevenue = payments.reduce(
-    (sum, payment) =>
-      payment.status === "VERIFIED" ? sum + Number(payment.amount) : sum,
-    0,
-  );
-
-  const pendingCount = payments.filter(
-    (payment) => payment.status === "SUBMITTED",
-  ).length;
-
-  const failedCount = payments.filter(
-    (payment) => payment.status === "REJECTED",
-  ).length;
-
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-
+  const handleVerify = async () => {
+    if (!verifyTarget) return;
     try {
-      await deletePayment(deleteTarget.id).unwrap();
+      await verifyPayment({
+        id: verifyTarget.id,
+        adminNote: adminNote || undefined,
+      }).unwrap();
 
-      toast({
-        title: "Payment deleted",
-      });
-
-      setDeleteTarget(null);
-    } catch {
+      toast({ title: "Payment verified successfully" });
+      setVerifyTarget(null);
+      setAdminNote("");
+    } catch (err: any) {
       toast({
         variant: "destructive",
-        title: "Failed to delete payment",
+        title: "Verification failed",
+        description: err?.data?.message || "Could not verify payment",
       });
     }
   };
 
-  const handleRefund = async () => {
-    if (!refundTarget) return;
-
+  const handleReject = async () => {
+    if (!rejectTarget || !rejectionReason.trim()) {
+      toast({ variant: "destructive", title: "Rejection reason is required" });
+      return;
+    }
     try {
-      await refundPayment(refundTarget.id).unwrap();
+      await rejectPayment({
+        id: rejectTarget.id,
+        rejectionReason: rejectionReason.trim(),
+        adminNote: adminNote || undefined,
+      }).unwrap();
 
-      toast({
-        title: "Payment refunded successfully",
-      });
-
-      setRefundTarget(null);
-    } catch {
+      toast({ title: "Payment rejected" });
+      setRejectTarget(null);
+      setRejectionReason("");
+      setAdminNote("");
+    } catch (err: any) {
       toast({
         variant: "destructive",
-        title: "Failed to refund payment",
+        title: "Rejection failed",
+        description: err?.data?.message || "Could not reject payment",
       });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deletePayment(deleteTarget.id).unwrap();
+      toast({ title: "Payment record deleted" });
+      setDeleteTarget(null);
+    } catch {
+      toast({ variant: "destructive", title: "Failed to delete payment" });
     }
   };
 
@@ -105,38 +124,36 @@ export function PaymentsPage() {
     <PageWrapper>
       <PageHeader
         title="Payments"
-        description="Track and manage all payment transactions"
+        description="Track, verify, and manage all payment transactions"
       />
 
+      {/* Stats from real analytics API */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatsCard
           title="Total Revenue"
-          value={totalRevenue}
+          value={analytics?.verifiedRevenue ?? 0}
           icon={DollarSign}
           format="currency"
           color="green"
           index={0}
         />
-
         <StatsCard
           title="Total Payments"
-          value={displayData?.meta?.total ?? 0}
+          value={analytics?.totalPayments ?? 0}
           icon={TrendingUp}
           color="blue"
           index={1}
         />
-
         <StatsCard
-          title="Pending"
-          value={pendingCount}
+          title="Pending Verification"
+          value={analytics?.pendingPayments ?? 0}
           icon={Clock}
           color="orange"
           index={2}
         />
-
         <StatsCard
           title="Rejected"
-          value={failedCount}
+          value={analytics?.rejectedPayments ?? 0}
           icon={XCircle}
           color="red"
           index={3}
@@ -151,22 +168,52 @@ export function PaymentsPage() {
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search transactions..."
+          placeholder="Search by Trx ID or sender..."
           className="flex-1 max-w-sm"
         />
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-40 cursor-pointer">
             <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
-            <SelectValue placeholder="Select Status" />
+            <SelectValue placeholder="Status" />
           </SelectTrigger>
-
           <SelectContent>
-            <SelectItem className="cursor-pointer" value="all">All Status</SelectItem>
-            <SelectItem className="cursor-pointer" value="SUBMITTED">Submitted</SelectItem>
-            <SelectItem className="cursor-pointer" value="VERIFIED">Verified</SelectItem>
-            <SelectItem className="cursor-pointer" value="REJECTED">Rejected</SelectItem>
-            <SelectItem className="cursor-pointer" value="REFUNDED">Refunded</SelectItem>
+            <SelectItem className="cursor-pointer" value="all">
+              All Status
+            </SelectItem>
+            <SelectItem className="cursor-pointer" value="SUBMITTED">
+              Submitted
+            </SelectItem>
+            <SelectItem className="cursor-pointer" value="VERIFIED">
+              Verified
+            </SelectItem>
+            <SelectItem className="cursor-pointer" value="REJECTED">
+              Rejected
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={methodFilter} onValueChange={setMethodFilter}>
+          <SelectTrigger className="w-40 cursor-pointer">
+            <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
+            <SelectValue placeholder="Method" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem className="cursor-pointer" value="all">
+              All Methods
+            </SelectItem>
+            <SelectItem className="cursor-pointer" value="BKASH">
+              bKash
+            </SelectItem>
+            <SelectItem className="cursor-pointer" value="NAGAD">
+              Nagad
+            </SelectItem>
+            <SelectItem className="cursor-pointer" value="BANK_TRANSFER">
+              Bank Transfer
+            </SelectItem>
+            <SelectItem className="cursor-pointer" value="CASH">
+              Cash
+            </SelectItem>
           </SelectContent>
         </Select>
       </motion.div>
@@ -179,35 +226,118 @@ export function PaymentsPage() {
         isLoading={isLoading}
         onPageChange={goToPage}
         onLimitChange={changeLimit}
+        onView={setViewTarget}
+        onVerify={setVerifyTarget}
+        onReject={setRejectTarget}
         onDelete={setDeleteTarget}
-        onRefund={setRefundTarget}
       />
 
+      {/* View Modal */}
+      <PaymentViewCard
+        payment={viewTarget}
+        open={!!viewTarget}
+        onOpenChange={(open) => !open && setViewTarget(null)}
+      />
+
+      {/* Verify Modal */}
+      <ConfirmDialog
+        open={!!verifyTarget}
+        onOpenChange={(open) => {
+          if (!open) {
+            setVerifyTarget(null);
+            setAdminNote("");
+          }
+        }}
+        title="Verify Payment"
+        description={
+          verifyTarget
+            ? `Verify payment of ৳${Number(verifyTarget.amount).toLocaleString()} for request ${verifyTarget.request?.requestNo}?`
+            : ""
+        }
+        customContent={
+          <div className="space-y-3 mt-2">
+            <div className="bg-muted rounded-lg p-3 text-sm space-y-1">
+              <p>
+                <span className="text-muted-foreground">Method:</span>{" "}
+                {verifyTarget?.method}
+              </p>
+              <p>
+                <span className="text-muted-foreground">Trx ID:</span>{" "}
+                {verifyTarget?.transactionId}
+              </p>
+              <p>
+                <span className="text-muted-foreground">Sender:</span>{" "}
+                {verifyTarget?.senderNumber || "—"}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label>Admin Note (optional)</Label>
+              <Textarea
+                rows={2}
+                placeholder="Add an internal note..."
+                value={adminNote}
+                onChange={(e) => setAdminNote(e.target.value)}
+              />
+            </div>
+          </div>
+        }
+        onConfirm={handleVerify}
+        isLoading={isVerifying}
+        confirmLabel="Verify Payment"
+      />
+
+      {/* Reject Modal */}
+      <ConfirmDialog
+        open={!!rejectTarget}
+        onOpenChange={(open) => {
+          if (!open) {
+            setRejectTarget(null);
+            setRejectionReason("");
+            setAdminNote("");
+          }
+        }}
+        title="Reject Payment"
+        description="Please provide a reason for rejection. The request status will return to Payment Pending."
+        customContent={
+          <div className="space-y-3 mt-2">
+            <div className="space-y-2">
+              <Label>
+                Rejection Reason <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                rows={3}
+                placeholder="e.g. Transaction ID not found, amount mismatch..."
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Admin Note (optional)</Label>
+              <Textarea
+                rows={2}
+                placeholder="Internal note..."
+                value={adminNote}
+                onChange={(e) => setAdminNote(e.target.value)}
+              />
+            </div>
+          </div>
+        }
+        onConfirm={handleReject}
+        isLoading={isRejecting}
+        confirmLabel="Reject Payment"
+        variant="destructive"
+      />
+
+      {/* Delete Modal */}
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete Payment"
-        description="Are you sure you want to delete this payment record?"
+        title="Delete Payment Record"
+        description="Are you sure? This will remove the payment proof and transaction record permanently."
         onConfirm={handleDelete}
         isLoading={isDeleting}
         confirmLabel="Delete"
-      />
-
-      <ConfirmDialog
-        open={!!refundTarget}
-        onOpenChange={(open) => !open && setRefundTarget(null)}
-        title="Refund Payment"
-        description={
-          refundTarget
-            ? `Refund payment of ৳${Number(
-                refundTarget.amount,
-              ).toLocaleString()}?`
-            : ""
-        }
-        onConfirm={handleRefund}
-        isLoading={isRefunding}
-        confirmLabel="Refund"
-        variant="default"
+        variant="destructive"
       />
     </PageWrapper>
   );
