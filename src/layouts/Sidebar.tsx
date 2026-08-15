@@ -2,19 +2,9 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard,
-  FileText,
-  CreditCard,
-  Users,
-  Package,
-  Bell,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
   Shield,
   LogOut,
-  FolderTree,
-  Tags,
+  ChevronRight,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "../lib/utils";
@@ -33,52 +23,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../components/ui/popover";
-import { Role } from "@/types/enums";
+import { usePermission } from "@/hooks/usePermission";
 
-interface NavItem {
-  to?: string;
-  icon: LucideIcon;
-  label: string;
-  roles?: Role[];
-  children?: NavItem[];
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard", roles: [Role.ADMIN, Role.MANAGER, Role.SUPER_ADMIN] },
-  { to: "/requests", icon: FileText, label: "Requests", roles: [Role.ADMIN, Role.MANAGER, Role.SUPER_ADMIN] },
-  { to: "/payments", icon: CreditCard, label: "Payments", roles: [Role.ADMIN, Role.MANAGER, Role.SUPER_ADMIN] },
-  { to: "/users", icon: Users, label: "Users", roles: [Role.ADMIN, Role.SUPER_ADMIN] },
-  {
-    icon: Package,
-    label: "Services",
-    roles: [Role.ADMIN, Role.SUPER_ADMIN],
-    children: [
-      { to: "/services", icon: Package, label: "All Services", roles: [Role.ADMIN, Role.SUPER_ADMIN] },
-      { to: "/services/categories", icon: FolderTree, label: "Categories", roles: [Role.ADMIN, Role.SUPER_ADMIN] },
-    ],
-  },
-  { to: "/notifications", icon: Bell, label: "Notifications", roles: [Role.ADMIN, Role.MANAGER, Role.SUPER_ADMIN] },
-  { to: "/settings", icon: Settings, label: "Settings", roles: [Role.ADMIN, Role.MANAGER, Role.SUPER_ADMIN] },
-];
-
-// exact match or route is a sub-path
 const isPathActive = (pathname: string, to?: string) =>
   !!to && (pathname === to || pathname.startsWith(`${to}/`));
-
-function filterNavByRole(items: NavItem[], userRole?: Role): NavItem[] {
-  if (!userRole) return [];
-  if (userRole === Role.SUPER_ADMIN) return items;
-
-  return items
-    .filter((item) => !item.roles || item.roles.includes(userRole))
-    .map((item) => ({
-      ...item,
-      children: item.children?.filter(
-        (child) => !child.roles || child.roles.includes(userRole)
-      ),
-    }))
-    .filter((item) => !item.children || item.children.length > 0);
-}
 
 interface SidebarProps {
   collapsed: boolean;
@@ -90,8 +38,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const user = useAppSelector((s) => s.auth.user);
   const dispatch = useAppDispatch();
   const location = useLocation();
-
-  const visibleNavItems = filterNavByRole(NAV_ITEMS, user?.role  as Role);
+  const { visibleNavItems } = usePermission();
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const toggleGroup = (label: string) =>
@@ -104,7 +51,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className="relative flex flex-col h-screen bg-card border-r border-border shrink-0 z-30 overflow-hidden"
       >
-        {/* header */}
+        {/* Header */}
         <div className="flex items-center gap-3 px-4 h-16 border-b border-border shrink-0">
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0">
             <Shield className="w-5 h-5 text-primary-foreground" />
@@ -118,44 +65,27 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 transition={{ duration: 0.15 }}
                 className="font-bold text-lg whitespace-nowrap"
               >
-                NextGen
+                AdminPro
               </motion.span>
             )}
           </AnimatePresence>
-
-          {/* Collapse toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "ml-auto h-8 w-8 shrink-0 cursor-pointer",
-              collapsed && "absolute -right-3 top-5 bg-card border shadow-sm"
-            )}
-            onClick={onToggle}
-          >
-            {collapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
-              <ChevronLeft className="w-4 h-4" />
-            )}
-          </Button>
         </div>
 
         <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto overflow-x-hidden">
           {visibleNavItems.map((item) => {
-            const { icon: Icon, label, children } = item;
+            const Icon = item.icon;
+            const children = item.children;
 
-            // ---------- Group with children ----------
             if (children?.length) {
               const childActive = children.some((c) =>
-                isPathActive(location.pathname, c.to)
+                isPathActive(location.pathname, c.path)
               );
-              const isOpen = openGroups[label] ?? childActive;
+              const isOpen = openGroups[item.label] ?? childActive;
 
-              // Collapsed: icon button opens a flyout
+              // Collapsed: popover
               if (collapsed) {
                 return (
-                  <Popover key={label}>
+                  <Popover key={item.path}>
                     <PopoverTrigger asChild>
                       <button
                         className={cn(
@@ -168,22 +98,17 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                         <Icon className="w-5 h-5 shrink-0" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent
-                      side="right"
-                      align="start"
-                      sideOffset={12}
-                      className="w-48 p-1.5"
-                    >
+                    <PopoverContent side="right" align="start" sideOffset={12} className="w-48 p-1.5">
                       <p className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {label}
+                        {item.label}
                       </p>
                       {children.map((child) => {
                         const ChildIcon = child.icon;
-                        const active = isPathActive(location.pathname, child.to);
+                        const active = isPathActive(location.pathname, child.path);
                         return (
                           <NavLink
-                            key={child.to}
-                            to={child.to!}
+                            key={child.path}
+                            to={child.path}
                             className={cn(
                               "flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium transition-colors cursor-pointer",
                               active
@@ -203,9 +128,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
               // Expanded: accordion
               return (
-                <div key={label}>
+                <div key={item.path}>
                   <button
-                    onClick={() => toggleGroup(label)}
+                    onClick={() => toggleGroup(item.label)}
                     className={cn(
                       "flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer",
                       childActive
@@ -214,9 +139,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                     )}
                   >
                     <Icon className="w-5 h-5 shrink-0" />
-                    <span className="flex-1 text-left whitespace-nowrap">
-                      {label}
-                    </span>
+                    <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
                     <ChevronRight
                       className={cn(
                         "w-4 h-4 shrink-0 transition-transform duration-200",
@@ -237,14 +160,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                         <div className="ml-[1.65rem] mt-1 space-y-1 border-l border-border pl-3">
                           {children.map((child) => {
                             const ChildIcon = child.icon;
-                            const active = isPathActive(
-                              location.pathname,
-                              child.to
-                            );
+                            const active = isPathActive(location.pathname, child.path);
                             return (
                               <NavLink
-                                key={child.to}
-                                to={child.to!}
+                                key={child.path}
+                                to={child.path}
                                 className={cn(
                                   "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer",
                                   active
@@ -253,9 +173,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                                 )}
                               >
                                 <ChildIcon className="w-4 h-4 shrink-0" />
-                                <span className="whitespace-nowrap">
-                                  {child.label}
-                                </span>
+                                <span className="whitespace-nowrap">{child.label}</span>
                               </NavLink>
                             );
                           })}
@@ -267,12 +185,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               );
             }
 
-            // ---------- Flat item ----------
-            const isActive = isPathActive(location.pathname, item.to);
-            const showBadge = label === "Notifications" && unreadCount > 0;
-            const navContent = (
+            // Flat item
+            const isActive = isPathActive(location.pathname, item.path);
+            const showBadge = item.label === "Notifications" && unreadCount > 0;
+            const content = (
               <NavLink
-                to={item.to!}
+                to={item.path}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative cursor-pointer",
                   isActive
@@ -289,7 +207,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                       exit={{ opacity: 0 }}
                       className="whitespace-nowrap"
                     >
-                      {label}
+                      {item.label}
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -297,9 +215,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   <span
                     className={cn(
                       "absolute flex items-center justify-center text-xs font-bold rounded-full bg-destructive text-destructive-foreground",
-                      collapsed
-                        ? "top-1 right-1 w-4 h-4 text-[10px]"
-                        : "ml-auto w-5 h-5"
+                      collapsed ? "top-1 right-1 w-4 h-4 text-[10px]" : "ml-auto w-5 h-5"
                     )}
                   >
                     {unreadCount > 9 ? "9+" : unreadCount}
@@ -307,25 +223,21 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 )}
               </NavLink>
             );
+
             return collapsed ? (
-              <Tooltip key={item.to}>
-                <TooltipTrigger asChild>{navContent}</TooltipTrigger>
-                <TooltipContent side="right">{label}</TooltipContent>
+              <Tooltip key={item.path}>
+                <TooltipTrigger asChild>{content}</TooltipTrigger>
+                <TooltipContent side="right">{item.label}</TooltipContent>
               </Tooltip>
             ) : (
-              <div key={item.to}>{navContent}</div>
+              <div key={item.path}>{content}</div>
             );
           })}
         </nav>
 
-        {/* Footer: User + Logout */}
+        {/* Footer */}
         <div className="shrink-0 border-t border-border p-3 space-y-2">
-          <div
-            className={cn(
-              "flex items-center gap-3 px-2 py-2 rounded-lg",
-              collapsed && "justify-center"
-            )}
-          >
+          <div className={cn("flex items-center gap-3 px-2 py-2 rounded-lg", collapsed && "justify-center")}>
             <Avatar className="w-8 h-8 shrink-0">
               <AvatarImage src={user?.userDetails?.avatarUrl || ""} />
               <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
@@ -339,16 +251,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </Avatar>
             {!collapsed && (
               <div className="min-w-0">
-                <p className="text-sm font-medium truncate">
-                  {user?.userDetails?.name || user?.email || "User"}
-                </p>
-                <p className="text-xs text-muted-foreground capitalize truncate">
-                  {user?.role?.toLowerCase()}
-                </p>
+                <p className="text-sm font-medium truncate">{user?.userDetails?.name || user?.email}</p>
+                <p className="text-xs text-muted-foreground capitalize truncate">{user?.role?.toLowerCase()}</p>
               </div>
             )}
           </div>
-
           <Button
             variant="ghost"
             className={cn(
