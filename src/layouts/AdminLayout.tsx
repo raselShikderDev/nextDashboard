@@ -6,12 +6,15 @@ import { Header } from "./Header";
 import { NotificationPanel } from "../features/notifications/components/NotificationPanel";
 import { useAppSelector, useAppDispatch } from "../app/hooks";
 import { closePanel } from "../features/notifications/slice/notificationsSlice";
+import { usePasswordChangeRedirect } from "@/hooks/usePasswordChangeRedirect";
 
 export function AdminLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const isPanelOpen = useAppSelector((s) => s.notifications.isPanelOpen);
   const dispatch = useAppDispatch();
+
+ usePasswordChangeRedirect();
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">

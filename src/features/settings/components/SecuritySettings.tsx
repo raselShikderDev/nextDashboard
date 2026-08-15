@@ -16,14 +16,16 @@ import { useToast } from "../../../hooks/useToast";
 import { useAppDispatch } from "../../../app/hooks";
 import { logout } from "../../auth/slice/authSlice";
 import { useChangePasswordMutation } from "@/features/auth/api/authApi";
-import { resetPasswordFormData, resetPasswordSchema } from "../validators/zodvalidator";
-
- 
+import {
+  resetPasswordFormData,
+  resetPasswordSchema,
+} from "../validators/zodvalidator";
 
 export function SecuritySettings() {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
-  const [changePassword, { isLoading: isChanging }] = useChangePasswordMutation();
+  const [changePassword, { isLoading: isChanging }] =
+    useChangePasswordMutation();
 
   const {
     register,
@@ -37,7 +39,7 @@ export function SecuritySettings() {
   const onSubmit = async (data: resetPasswordFormData) => {
     try {
       await changePassword({
-        oldPassword: data.currentPassword, 
+        oldPassword: data.currentPassword,
         newPassword: data.newPassword,
       }).unwrap();
 
@@ -54,6 +56,17 @@ export function SecuritySettings() {
 
   return (
     <div className="space-y-6">
+      {/* Banner when forced */}
+      {mustChange && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Action Required</AlertTitle>
+          <AlertDescription>
+            You must change your password before you can access other parts of
+            the dashboard.
+          </AlertDescription>
+        </Alert>
+      )}
       <div>
         <h2 className="text-lg font-semibold">Security Settings</h2>
         <p className="text-sm text-muted-foreground mt-1">
