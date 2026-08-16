@@ -29,7 +29,7 @@ import { usePagination } from "../../../hooks/usePagination";
 import { useToast } from "../../../hooks/useToast";
 import { Payment } from "@/types/payment.types";
 import { PaymentMethod } from "@/types/enums";
-import { capitalizeFirstLetter } from "@/helpers/helpers";
+import { capitalizeFirst } from "@/helpers/helpers";
 
 export function PaymentsPage() {
   const { toast } = useToast();
@@ -212,8 +212,8 @@ export function PaymentsPage() {
             {Object.values(PaymentMethod).map((method: string) => {
               let label = method.replace("_", " ");
               return (
-                <SelectItem className="cursor-pointer" value={method}>
-                  {capitalizeFirstLetter(label)}
+                <SelectItem className="cursor-pointer" key={method} value={method}>
+                  {capitalizeFirst(label)}
                 </SelectItem>
               );
             })}

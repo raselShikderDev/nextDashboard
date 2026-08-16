@@ -33,120 +33,106 @@ import { ServiceRequest } from "@/types/request.types";
 import { RequestStatus } from "@/types/enums";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { RequestDetailsModal } from "../components/RequestDetailsModal";
-import { useGetAllServicesQuery } from "@/features/services/api/servicesApi";
+import { capitalizeFirst } from "@/helpers/helpers";
 
-const NAMES = [
-  "Alice Johnson",
-  "Bob Smith",
-  "Carol White",
-  "David Lee",
-  "Eva Martinez",
-  "Frank Brown",
-  "Grace Kim",
-  "Henry Davis",
-  "Isla Wilson",
-  "Jack Moore",
-];
+// const NAMES = [
+//   "Alice Johnson",
+//   "Bob Smith",
+//   "Carol White",
+//   "David Lee",
+//   "Eva Martinez",
+//   "Frank Brown",
+//   "Grace Kim",
+//   "Henry Davis",
+//   "Isla Wilson",
+//   "Jack Moore",
+// ];
 
-const SERVICES = [
-  "APS Certificate",
-  "Germany SOP Writing",
-  "Blocked Account",
-  "Student Visa",
-  "Accommodation",
-];
+// const SERVICES = [
+//   "APS Certificate",
+//   "Germany SOP Writing",
+//   "Blocked Account",
+//   "Student Visa",
+//   "Accommodation",
+// ];
 
-export const MOCK_REQUESTS = Array.from({ length: 10 }, (_, i) => ({
-  id: `req-${i}`,
-  requestNo: `NSX-2026-${String(i + 1).padStart(6, "0")}`,
-  userId: null,
-  user: null,
-  serviceId: `service-${i % 5}`,
-  assignedToId: i % 3 === 0 ? `admin-${i}` : null,
-  isGuest: true,
-  guestName: NAMES[i],
-  guestEmail: `user${i}@example.com`,
-  guestPhone: `0170000000${i}`,
-  guestAddress: "Dhaka",
-  guestSource: (["FACEBOOK", "REFERRAL", "WEBSITE"] as const)[i % 3],
-  status: (
-    [
-      "SUBMITTED",
-      "PAYMENT_PENDING",
-      "PAYMENT_VERIFIED",
-      "IN_PROGRESS",
-      "COMPLETED",
-    ] as const
-  )[i % 5],
-  formData: {
-    passportNumber: `P${100000 + i}`,
-  },
-  userNotes: "Need urgent processing",
-  adminNotes: null,
-  quotedPrice: null,
-  finalPrice: null,
-  currency: "BDT",
-  deliveryMessage: null,
-  submittedAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-  dueDate: null,
-  completedAt: null,
-  createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-  updatedAt: new Date().toISOString(),
-  service: {
-    id: `service-${i % 5}`,
-    name: SERVICES[i % 5],
-    price: String((i + 1) * 5000),
-    requiresQuotation: false,
-  },
-  assignedTo:
-    i % 3 === 0
-      ? {
-          id: `admin-${i}`,
-          name: "Super Admin",
-        }
-      : null,
-  payment:
-    i % 2 === 0
-      ? {
-          id: `payment-${i}`,
-          status: "VERIFIED",
-          amount: String((i + 1) * 5000),
-          method: "BKASH",
-        }
-      : null,
-}));
+// export const MOCK_REQUESTS = Array.from({ length: 10 }, (_, i) => ({
+//   id: `req-${i}`,
+//   requestNo: `NSX-2026-${String(i + 1).padStart(6, "0")}`,
+//   userId: null,
+//   user: null,
+//   serviceId: `service-${i % 5}`,
+//   assignedToId: i % 3 === 0 ? `admin-${i}` : null,
+//   isGuest: true,
+//   guestName: NAMES[i],
+//   guestEmail: `user${i}@example.com`,
+//   guestPhone: `0170000000${i}`,
+//   guestAddress: "Dhaka",
+//   guestSource: (["FACEBOOK", "REFERRAL", "WEBSITE"] as const)[i % 3],
+//   status: (
+//     [
+//       "SUBMITTED",
+//       "PAYMENT_PENDING",
+//       "PAYMENT_VERIFIED",
+//       "IN_PROGRESS",
+//       "COMPLETED",
+//     ] as const
+//   )[i % 5],
+//   formData: {
+//     passportNumber: `P${100000 + i}`,
+//   },
+//   userNotes: "Need urgent processing",
+//   adminNotes: null,
+//   quotedPrice: null,
+//   finalPrice: null,
+//   currency: "BDT",
+//   deliveryMessage: null,
+//   submittedAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+//   dueDate: null,
+//   completedAt: null,
+//   createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+//   updatedAt: new Date().toISOString(),
+//   service: {
+//     id: `service-${i % 5}`,
+//     name: SERVICES[i % 5],
+//     price: String((i + 1) * 5000),
+//     requiresQuotation: false,
+//   },
+//   assignedTo:
+//     i % 3 === 0
+//       ? {
+//           id: `admin-${i}`,
+//           name: "Super Admin",
+//         }
+//       : null,
+//   payment:
+//     i % 2 === 0
+//       ? {
+//           id: `payment-${i}`,
+//           status: "VERIFIED",
+//           amount: String((i + 1) * 5000),
+//           method: "BKASH",
+//         }
+//       : null,
+// }));
 
-export const MOCK_DATA = {
-  data: MOCK_REQUESTS,
-  meta: {
-    total: 48,
-    page: 1,
-    limit: 10,
-    totalPage: 5,
-    hasNextPage: true,
-    hasPreviousPage: false,
-  },
-};
+// export const MOCK_DATA = {
+//   data: MOCK_REQUESTS,
+//   meta: {
+//     total: 48,
+//     page: 1,
+//     limit: 10,
+//     totalPage: 5,
+//     hasNextPage: true,
+//     hasPreviousPage: false,
+//   },
+// };
 
-export const REQUEST_STATUS_OPTIONS = [
-  { value: RequestStatus.DRAFT, label: "Draft" },
-  { value: RequestStatus.SUBMITTED, label: "Submitted" },
-  { value: RequestStatus.UNDER_REVIEW, label: "Under Review" },
-  { value: RequestStatus.PAYMENT_PENDING, label: "Payment Pending" },
-  { value: RequestStatus.PAYMENT_SUBMITTED, label: "Payment Submitted" },
-  { value: RequestStatus.PAYMENT_VERIFIED, label: "Payment Verified" },
-  { value: RequestStatus.IN_PROGRESS, label: "In Progress" },
-  { value: RequestStatus.READY_FOR_DELIVERY, label: "Ready For Delivery" },
-  { value: RequestStatus.DELIVERED, label: "Delivered" },
-  { value: RequestStatus.COMPLETED, label: "Completed" },
-  { value: RequestStatus.REJECTED, label: "Rejected" },
-  { value: RequestStatus.CANCELLED, label: "Cancelled" },
-];
 
 export function RequestsPage() {
   const { page, limit, goToPage, changeLimit } = usePagination();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(
     null,
@@ -276,7 +262,7 @@ export function RequestsPage() {
     }
   };
 
-  const displayData = data ?? MOCK_DATA;
+  const displayData = data ;
   const showLoader = isGetRequestLoading || isGetRequestFetching;
 
   return (
@@ -307,26 +293,29 @@ export function RequestsPage() {
           placeholder="Search requests..."
           className="flex-1 max-w-sm"
         />
-       <Select value={statusFilter} onValueChange={setStatusFilter}>
-  <SelectTrigger className="cursor-pointer w-36">
-    <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
-    <SelectValue placeholder="Select Status" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem className="cursor-pointer" value="">
-      All Status
-    </SelectItem>
-    {REQUEST_STATUS_OPTIONS.map((status) => (
-      <SelectItem
-        className="cursor-pointer"
-        key={status.value}
-        value={status.value}
-      >
-        {status.label}
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-40 cursor-pointer">
+            <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
+            <SelectValue placeholder="Select Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem className="cursor-pointer" value="">
+              All Status
+            </SelectItem>
+            {Object.values(RequestStatus).map((status: string) => {
+              const label = status.replace("_", " ");
+              return (
+                <SelectItem
+                  className="cursor-pointer"
+                  key={status}
+                  value={status}
+                >
+                  {capitalizeFirst(label)}
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
       </motion.div>
       {showLoader ? (
         <LoadingSpinner />

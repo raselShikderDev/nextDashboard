@@ -130,6 +130,3 @@ export function getStatusColor(status: string): string {
   return colors[status] ?? "gray";
 }
 
-export function capitalizeFirstLetter(string: string) {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-}
