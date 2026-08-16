@@ -10,7 +10,6 @@ export function ProtectedRoute() {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Admin dashboard is only for ADMIN, MANAGER, SUPER_ADMIN
   if (user.role === Role.USER) {
     return <Navigate to="/unauthorized" replace />;
   }

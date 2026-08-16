@@ -1,22 +1,17 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Camera, Mail, Pencil, X, User } from "lucide-react";
+import { Loader2, Camera, Mail, Pencil, X } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
 import { Textarea } from "../../../components/ui/textarea";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../../../components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar";
 import { profileSchema, type ProfileFormData } from "../../../lib/validators";
-import { useAppDispatch } from "../../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks"; // ✅ added useAppSelector
 import { updateUser } from "../../auth/slice/authSlice";
 import { useToast } from "../../../hooks/useToast";
 import {
-  useGetMeQuery,
   useRequestEmailChangeMutation,
   useUpdateProfileMutation,
 } from "@/features/users/api/usersApi";
@@ -26,10 +21,8 @@ export function ProfileSettings() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
 
-  //  Fetch full user profile (has userDetails)
-  const { data: meData } = useGetMeQuery();
-  const user = meData;
-  console.log({ meData });
+  // ✅ Read from Redux
+  const user = useAppSelector((s) => s.auth.user);
 
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
   const [requestEmailChange, { isLoading: isRequestingEmail }] =
@@ -44,13 +37,9 @@ export function ProfileSettings() {
     formState: { errors, isDirty },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: "",
-      phone: "",
-    },
+    defaultValues: { name: "", phone: "" },
   });
 
-  // Sync form when profile data loads
   useEffect(() => {
     if (user?.userDetails) {
       reset({
