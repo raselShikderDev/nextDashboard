@@ -1,6 +1,6 @@
 import { Payment, PaymentAnalytics } from "@/types/payment.types";
 import { baseApi } from "../../../app/baseApi";
-import type { PaginatedResponse, FilterParams } from "../../../types";
+import type { PaginatedResponse, FilterParams, PaginatedAnalysisResponse } from "../../../types";
 
 export const paymentsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -10,7 +10,6 @@ export const paymentsApi = baseApi.injectEndpoints({
         Object.entries(params).forEach(([k, v]) => {
           if (v !== undefined && v !== "") qs.set(k, String(v));
         });
-        // return `/payment?${qs.toString()}`;
         return `/payment?${qs.toString()}`;
       },
       providesTags: (result) =>
@@ -36,9 +35,13 @@ export const paymentsApi = baseApi.injectEndpoints({
       transformResponse: (res: { data: Payment }) => res.data,
       invalidatesTags: [{ type: "Payment", id: "LIST" }],
     }),
-    getPaymentAnalytics: builder.query<PaymentAnalytics, void>({
+    getPaymentAnalytics: builder.query<PaginatedAnalysisResponse<PaymentAnalytics>, void>({
       query: () =>({url:"/payment/analytics", method: "GET"}),
-      transformErrorResponse:(res)=> res.data,
+      transformErrorResponse:(res)=> {
+        console.log({res});
+        
+        return res.data
+      },
       providesTags: ["Payment"],
     }),
 

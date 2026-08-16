@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Filter, DollarSign, TrendingUp, Clock, XCircle, CheckCircle } from "lucide-react";
+import {
+  Filter,
+  DollarSign,
+  TrendingUp,
+  Clock,
+  XCircle,
+  CheckCircle,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { PageWrapper } from "../../../layouts/PageWrapper";
 import { PageHeader } from "../../../components/PageHeader";
@@ -54,12 +61,19 @@ export function PaymentsPage() {
     limit,
     searchTerm: debouncedSearch || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
+    method: methodFilter !== "all" ? methodFilter : undefined,
   });
 
-  const { data: analytics } = useGetPaymentAnalyticsQuery();
+  const { data: analyticsData } = useGetPaymentAnalyticsQuery();
+  console.log({ analyticsData });
+  const analytics = analyticsData?.data;
 
-  const [verifyPayment, { isLoading: isVerifying }] = useVerifyPaymentMutation();
-  const [rejectPayment, { isLoading: isRejecting }] = useRejectPaymentMutation();
+  console.log({ analytics });
+
+  const [verifyPayment, { isLoading: isVerifying }] =
+    useVerifyPaymentMutation();
+  const [rejectPayment, { isLoading: isRejecting }] =
+    useRejectPaymentMutation();
   const [deletePayment, { isLoading: isDeleting }] = useDeletePaymentMutation();
 
   const payments = displayData?.data ?? [];
@@ -198,7 +212,7 @@ export function PaymentsPage() {
             <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
             <SelectValue placeholder="Method" />
           </SelectTrigger>
-          {/* <SelectContent>
+          <SelectContent>
             <SelectItem className="cursor-pointer" value="all">
               All Methods
             </SelectItem>
@@ -214,7 +228,7 @@ export function PaymentsPage() {
             <SelectItem className="cursor-pointer" value="CASH">
               Cash
             </SelectItem>
-          </SelectContent> */}
+          </SelectContent>
         </Select>
       </motion.div>
 

@@ -55,6 +55,11 @@ export interface PaginatedResponse<T> {
   };
 }
 
+export interface PaginatedAnalysisResponse<T> {
+  data: T;
+}
+
+
 export interface ApiError {
   message: string;
   status: number;
@@ -103,6 +108,7 @@ export interface FilterParams {
   sortOrder?: "asc" | "desc";
   startDate?: string;
   endDate?: string;
+  method?:string;
 }
 
 
