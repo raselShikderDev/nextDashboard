@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Filter,
-  DollarSign,
-  TrendingUp,
-  Clock,
-  XCircle,
-  CheckCircle,
-} from "lucide-react";
+import { Filter, DollarSign, TrendingUp, Clock, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { PageWrapper } from "../../../layouts/PageWrapper";
 import { PageHeader } from "../../../components/PageHeader";
@@ -15,8 +8,6 @@ import { PaymentsTable } from "../components/PaymentsTable";
 import { PaymentViewCard } from "../components/PaymentViewCard";
 import { ConfirmDialog } from "../../../components/ConfirmDialog";
 import { StatsCard } from "../../dashboard/components/StatsCard";
-import { Button } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
 import { Textarea } from "../../../components/ui/textarea";
 import { Label } from "../../../components/ui/label";
 import {
@@ -37,6 +28,8 @@ import { useDebounce } from "../../../hooks/useDebounce";
 import { usePagination } from "../../../hooks/usePagination";
 import { useToast } from "../../../hooks/useToast";
 import { Payment } from "@/types/payment.types";
+import { PaymentMethod } from "@/types/enums";
+import { capitalizeFirstLetter } from "@/helpers/helpers";
 
 export function PaymentsPage() {
   const { toast } = useToast();
@@ -216,18 +209,14 @@ export function PaymentsPage() {
             <SelectItem className="cursor-pointer" value="all">
               All Methods
             </SelectItem>
-            <SelectItem className="cursor-pointer" value="BKASH">
-              bKash
-            </SelectItem>
-            <SelectItem className="cursor-pointer" value="NAGAD">
-              Nagad
-            </SelectItem>
-            <SelectItem className="cursor-pointer" value="BANK_TRANSFER">
-              Bank Transfer
-            </SelectItem>
-            <SelectItem className="cursor-pointer" value="CASH">
-              Cash
-            </SelectItem>
+            {Object.values(PaymentMethod).map((method: string) => {
+              let label = method.replace("_", " ");
+              return (
+                <SelectItem className="cursor-pointer" value={method}>
+                  {capitalizeFirstLetter(label)}
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
       </motion.div>

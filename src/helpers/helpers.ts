@@ -1,6 +1,5 @@
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 
-
 export function formatCurrency(amount: number, currency = "USD"): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -45,7 +44,6 @@ export function getInitials(name?: string | null): string {
     .toUpperCase()
     .slice(0, 2);
 }
-
 
 export const formatRole = (role: string) =>
   role
@@ -132,4 +130,6 @@ export function getStatusColor(status: string): string {
   return colors[status] ?? "gray";
 }
 
-
+export function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
